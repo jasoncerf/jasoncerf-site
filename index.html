@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jason Cerf</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #F8F6F1;
+      --warm: #EDE8DF;
+      --tan: #B89B72;
+      --tan-light: #D4BC9E;
+      --dark: #19180F;
+      --mid: #706B62;
+      --sage: #7A9070;
+      --ink: #2A2822;
+      --linen: #EAE5DB;
+    }
+
+    html {
+      font-size: 16px;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--cream);
+      color: var(--dark);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── Custom Cursor ── */
+    #cursor {
+      position: fixed;
+      width: 10px; height: 10px;
+      background: var(--tan);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: width .25s, height .25s, background .25s;
+      will-change: transform;
+    }
+    #cursor-ring {
+      position: fixed;
+      width: 36px; height: 36px;
+      border: 1px solid rgba(184,155,114,.4);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: all .12s ease-out;
+      will-change: transform;
+    }
+    body:has(a:hover) #cursor, body:has(button:hover) #cursor {
+      width: 20px; height: 20px;
+      background: var(--sage);
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: var(--cream); }
+    ::-webkit-scrollbar-thumb { background: var(--tan-light); border-radius: 2px; }
+
+    /* ── Noise overlay ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9000;
+      opacity: .5;
+    }
+
+    /* ── Hero ── */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4rem 1.5rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Animated background rings */
+    .hero-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(184,155,114,0.15);
+      animation: ringPulse 8s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .hero-ring:nth-child(1) { width: 340px; height: 340px; animation-delay: 0s; }
+    .hero-ring:nth-child(2) { width: 560px; height: 560px; animation-delay: 1.5s; }
+    .hero-ring:nth-child(3) { width: 800px; height: 800px; animation-delay: 3s; }
+    .hero-ring:nth-child(4) { width: 1080px; height: 1080px; animation-delay: 4.5s; }
+
+    @keyframes ringPulse {
+      0%, 100% { transform: scale(1); opacity: .3; }
+      50% { transform: scale(1.04); opacity: .6; }
+    }
+
+    /* Floating dots */
+    .dot {
+      position: absolute;
+      width: 4px; height: 4px;
+      background: var(--tan-light);
+      border-radius: 50%;
+      opacity: 0;
+      animation: floatDot linear infinite;
+    }
+    @keyframes floatDot {
+      0% { transform: translateY(0) scale(0); opacity: 0; }
+      10% { opacity: .6; transform: scale(1); }
+      90% { opacity: .3; }
+      100% { transform: translateY(-120px) scale(0.5); opacity: 0; }
+    }
+
+    .hero-eyebrow {
+      font-family: 'DM Sans', sans-serif;
+      font-size: .72rem;
+      letter-spacing: .25em;
+      text-transform: uppercase;
+      color: var(--tan);
+      margin-bottom: 2rem;
+      opacity: 0;
+    }
+
+    .hero-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3rem, 14vw, 12rem);
+      font-weight: 300;
+      line-height: .9;
+      letter-spacing: -.02em;
+      text-align: center;
+      position: relative;
+      white-space: nowrap;
+    }
+
+    .hero-name .letter {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(40px) rotate(2deg);
+    }
+    .hero-name .space { display: inline-block; width: .35em; }
+
+    .hero-tagline {
+      margin-top: 2.5rem;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1rem, 2.5vw, 1.5rem);
+      font-style: italic;
+      color: var(--mid);
+      text-align: center;
+      opacity: 0;
+      white-space: nowrap;
+    }
+    @media (max-width: 400px) {
+      .hero-tagline { white-space: normal; }
+    }
+
+    /* Morphing words */
+    #morph-word {
+      display: inline-block;
+      min-width: 8rem;
+      color: var(--tan);
+      font-style: normal;
+      font-weight: 400;
+    }
+
+    .hero-scroll-hint {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .5rem;
+      opacity: 0;
+    }
+    .hero-scroll-hint span {
+      font-size: .65rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--mid);
+    }
+    .scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--tan), transparent);
+      animation: scrollDrop 2s ease-in-out infinite;
+    }
+    @keyframes scrollDrop {
+      0% { transform: scaleY(0); transform-origin: top; }
+      50% { transform: scaleY(1); transform-origin: top; }
+      51% { transform: scaleY(1); transform-origin: bottom; }
+      100% { transform: scaleY(0); transform-origin: bottom; }
+    }
+
+    /* ── Ticker ── */
+    .ticker-wrap {
+      overflow: hidden;
+      border-top: 1px solid var(--linen);
+      border-bottom: 1px solid var(--linen);
+      padding: .9rem 0;
+      background: var(--warm);
+    }
+    .ticker-track {
+      display: flex;
+      gap: 0;
+      animation: tickerScroll 22s linear infinite;
+      white-space: nowrap;
+    }
+    .ticker-track span {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem;
+      font-style: italic;
+      color: var(--mid);
+      padding: 0 2.5rem;
+    }
+    .ticker-track .sep {
+      color: var(--tan);
+      font-style: normal;
+      padding: 0;
+    }
+    @keyframes tickerScroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* ── Sections ── */
+    section { padding: 7rem 2rem; }
+
+    .section-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: .65rem;
+      letter-spacing: .25em;
+      text-transform: uppercase;
+      color: var(--tan);
+      margin-bottom: 1.2rem;
+      opacity: 0;
+    }
+
+    .section-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      font-weight: 300;
+      line-height: 1.05;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+    }
+
+    /* ── About ── */
+    #about {
+      background: var(--cream);
+    }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: start;
+    }
+    @media (max-width: 720px) {
+      .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+    }
+    .about-text p {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--mid);
+      margin-bottom: 1.2rem;
+      opacity: 0;
+    }
+    .about-text p strong {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .about-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    .stat-item { opacity: 0; }
+    .stat-number {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 3.5rem;
+      font-weight: 300;
+      color: var(--ink);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: .78rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-top: .3rem;
+    }
+    .stat-note {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: .9rem;
+      font-style: italic;
+      color: var(--tan);
+      margin-top: .15rem;
+    }
+
+    /* ── Domains ── */
+    #domains {
+      background: var(--warm);
+    }
+    .domains-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5px;
+      margin-top: 4rem;
+      background: var(--linen);
+    }
+    @media (max-width: 720px) {
+      .domains-grid { grid-template-columns: 1fr; }
+    }
+
+    .domain-card {
+      background: var(--cream);
+      padding: 3.5rem 3rem;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      opacity: 0;
+      transition: background .4s ease;
+    }
+    .domain-card:hover { background: var(--warm); }
+
+    .domain-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--tan);
+      transition: width .5s cubic-bezier(.25,.46,.45,.94);
+    }
+    .domain-card:hover::after { width: 100%; }
+
+    .domain-number {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: .85rem;
+      color: var(--tan);
+      letter-spacing: .1em;
+      margin-bottom: 1.5rem;
+    }
+
+    .domain-icon {
+      font-size: 2rem;
+      margin-bottom: 1.2rem;
+      display: block;
+      transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+    }
+    .domain-card:hover .domain-icon { transform: scale(1.15) rotate(-5deg); }
+
+    .domain-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.2rem;
+      font-weight: 400;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+
+    .domain-desc {
+      font-size: .9rem;
+      line-height: 1.75;
+      color: var(--mid);
+      max-width: 30ch;
+    }
+
+    .domain-link {
+      display: inline-block;
+      margin-top: 1.5rem;
+      font-size: .72rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--tan);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color .3s;
+    }
+    .domain-link:hover { border-color: var(--tan); }
+
+    .domain-aside {
+      position: absolute;
+      bottom: 1.5rem; right: 2rem;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: .8rem;
+      font-style: italic;
+      color: var(--tan-light);
+      opacity: 0;
+      transition: opacity .3s .1s;
+    }
+    .domain-card:hover .domain-aside { opacity: 1; }
+
+    /* ── Work tape ── */
+    #tape {
+      padding: 0;
+      background: var(--ink);
+      overflow: hidden;
+    }
+    .tape-inner {
+      display: flex;
+      animation: tapeScroll 30s linear infinite;
+      white-space: nowrap;
+    }
+    .tape-inner span {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.05rem;
+      font-style: italic;
+      color: rgba(255,255,255,.25);
+      padding: 1rem 2rem;
+      border-right: 1px solid rgba(255,255,255,.06);
+      flex-shrink: 0;
+    }
+    .tape-inner .highlight { color: rgba(184,155,114,.6); }
+    @keyframes tapeScroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* ── Contact ── */
+    #contact {
+      background: var(--cream);
+      text-align: center;
+    }
+    #contact .section-heading { text-align: center; margin-bottom: .5rem; }
+    .contact-sub {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem;
+      font-style: italic;
+      color: var(--mid);
+      margin-bottom: 3rem;
+      opacity: 0;
+    }
+    .contact-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      opacity: 0;
+    }
+    .contact-link {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: .75rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+      padding: .9rem 2rem;
+      border: 1px solid var(--linen);
+      border-radius: 2px;
+      transition: all .3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .contact-link::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--tan);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform .35s cubic-bezier(.25,.46,.45,.94);
+      z-index: -1;
+    }
+    .contact-link:hover {
+      color: white;
+      border-color: var(--tan);
+    }
+    .contact-link:hover::before { transform: scaleX(1); }
+
+    /* ── Footer ── */
+    footer {
+      padding: 2.5rem 2rem;
+      border-top: 1px solid var(--linen);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .footer-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem;
+      font-weight: 300;
+      color: var(--ink);
+    }
+    .footer-note {
+      font-size: .72rem;
+      color: var(--mid);
+      letter-spacing: .05em;
+    }
+    .footer-note a { color: var(--tan); text-decoration: none; }
+
+    /* ── Animations / Utilities ── */
+    .reveal { overflow: hidden; }
+
+    @keyframes clipReveal {
+      from { clip-path: inset(0 100% 0 0); }
+      to { clip-path: inset(0 0% 0 0); }
+    }
+
+    /* Parallax */
+    .parallax-slow { will-change: transform; }
+
+    /* Line draw */
+    .drawn-line {
+      display: block;
+      height: 1px;
+      background: var(--tan);
+      transform: scaleX(0);
+      transform-origin: left;
+      margin: 2rem 0;
+    }
+
+    /* Counter */
+    .counter-wrap { position: relative; display: inline-block; }
+    .counter-tooltip {
+      position: absolute;
+      bottom: 110%;
+      left: 50%;
+      transform: translateX(-50%) translateY(4px);
+      background: var(--ink);
+      color: var(--tan-light);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: .85rem;
+      font-style: italic;
+      white-space: nowrap;
+      padding: .35rem .8rem;
+      border-radius: 2px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s, transform .25s;
+    }
+    .counter-wrap:hover .counter-tooltip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Section divider */
+    .divider {
+      width: 60px;
+      height: 1px;
+      background: var(--tan-light);
+      margin: 2.5rem 0;
+      opacity: 0;
+    }
+
+    /* Stagger helper */
+    .stagger > * { opacity: 0; }
+  </style>
+</head>
+<body>
+
+<!-- Cursors -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- ════════════════════════════════════════
+     HERO
+════════════════════════════════════════ -->
+<section id="hero">
+  <div class="hero-ring"></div>
+  <div class="hero-ring"></div>
+  <div class="hero-ring"></div>
+  <div class="hero-ring"></div>
+
+  <!-- floating dots injected by JS -->
+
+  <p class="hero-eyebrow">Builder · Founder · Human Being</p>
+
+  <h1 class="hero-name" id="hero-name">
+    <!-- Letters injected by JS -->
+  </h1>
+
+  <p class="hero-tagline">
+    <em id="morph-word">Musician</em> · founder · operator
+  </p>
+
+  <div class="hero-scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     TICKER
+════════════════════════════════════════ -->
+<div class="ticker-wrap">
+  <div class="ticker-track" id="ticker">
+    <!-- injected by JS -->
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     ABOUT
+════════════════════════════════════════ -->
+<section id="about">
+  <div class="section-inner">
+    <p class="section-label">About</p>
+    <h2 class="section-heading">Builds things.<br>Fixes things.<br>Records things.</h2>
+    <div class="drawn-line"></div>
+    <div class="about-grid">
+      <div class="about-text">
+        <p><strong>Jason Cerf</strong> builds AI agents that do real work for real people. His current focus is <strong>Agentify</strong> — a platform that gives individuals and businesses a dedicated AI agent via SMS, handling customer service, scheduling, outreach, and operations around the clock.</p>
+        <p>He also runs <strong>Driftwood Digital</strong>, helping businesses deploy AI systems that actually change how their operations run — not demos, but working tools. His background spans music, technology, and the trades: he owns a catalog of 200,000+ recordings and has built businesses from the ground up across several industries.</p>
+        <p>On weekends — and occasionally on weekdays when the deadline is loose — he goes rock climbing. Gravity remains undefeated but the scoreline is contested.</p>
+      </div>
+      <div class="about-stats">
+        <div class="stat-item">
+          <div class="stat-number">
+            <div class="counter-wrap">
+              <span id="rec-counter">0</span>k+
+              <div class="counter-tooltip">...give or take a few thousand</div>
+            </div>
+          </div>
+          <div class="stat-label">Recordings owned</div>
+          <div class="stat-note">That's not a typo.</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">3</div>
+          <div class="stat-label">Active companies</div>
+          <div class="stat-note">One for each hat he owns.</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">∞</div>
+          <div class="stat-label">Things on the list</div>
+          <div class="stat-note">The list does not shrink.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     DOMAINS
+════════════════════════════════════════ -->
+<section id="domains">
+  <div class="section-inner">
+    <p class="section-label">What I Do</p>
+    <h2 class="section-heading">Four domains,<br>one person.</h2>
+  </div>
+
+  <div class="section-inner" style="max-width:1100px; padding: 0 2rem;">
+    <div class="domains-grid">
+
+      <!-- Music -->
+      <div class="domain-card">
+        <div class="domain-number">01</div>
+        <span class="domain-icon">♩</span>
+        <h3 class="domain-title">Music</h3>
+        <p class="domain-desc">Founder of SubmitMusic.io. 200,000+ recordings and counting. Music as infrastructure, not just art.</p>
+        <a class="domain-link" href="https://submitmusic.io" target="_blank" rel="noopener">submitmusic.io ↗</a>
+        <div class="domain-aside">200k+ recordings and yes, he's heard them all*<br><small style="font-size:.7rem">*he has not</small></div>
+      </div>
+
+      <!-- Trades -->
+      <div class="domain-card">
+        <div class="domain-number">02</div>
+        <span class="domain-icon">🔧</span>
+        <h3 class="domain-title">The Trades</h3>
+        <p class="domain-desc">Driftwood Digital — handyman, contracting, property work. Real walls, real timelines, real results.</p>
+        <a class="domain-link" href="mailto:jason@submitmusic.io">Get in touch ↗</a>
+        <div class="domain-aside">Also fixes things that weren't technically broken</div>
+      </div>
+
+      <!-- Tech / AI -->
+      <div class="domain-card">
+        <div class="domain-number">03</div>
+        <span class="domain-icon">⬡</span>
+        <h3 class="domain-title">Technology</h3>
+        <p class="domain-desc">Founder of Agentify — building AI agents that actually work, do actual things, and don't hallucinate your invoice.</p>
+        <a class="domain-link" href="mailto:jason@submitmusic.io">Talk shop ↗</a>
+        <div class="domain-aside">The robots work. Mostly.</div>
+      </div>
+
+      <!-- Climbing -->
+      <div class="domain-card">
+        <div class="domain-number">04</div>
+        <span class="domain-icon">△</span>
+        <h3 class="domain-title">Rock Climbing</h3>
+        <p class="domain-desc">The one pursuit where the problem is always the wall and never the screen. Mostly trad, occasionally unplanned descents.</p>
+        <a class="domain-link" href="mailto:jason@submitmusic.io">Say hi ↗</a>
+        <div class="domain-aside">Gravity: 1 · Jason: ongoing dispute</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     WORK TAPE
+════════════════════════════════════════ -->
+<div id="tape">
+  <div class="tape-inner" id="tape-inner">
+    <!-- injected by JS -->
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     CONTACT
+════════════════════════════════════════ -->
+<section id="contact">
+  <div class="section-inner">
+    <p class="section-label">Contact</p>
+    <h2 class="section-heading">Let's talk.</h2>
+    <div class="drawn-line" style="margin: 1.5rem auto; width:60px;"></div>
+    <p class="contact-sub">Building something interesting? Want to debate AI or share a climbing beta?</p>
+    <div class="contact-links">
+      <a class="contact-link" href="mailto:jason@submitmusic.io">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Email
+      </a>
+      <a class="contact-link" href="https://www.linkedin.com/in/jason-cerf-45144154/" target="_blank" rel="noopener">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+        LinkedIn
+      </a>
+      <a class="contact-link" href="https://submitmusic.io" target="_blank" rel="noopener">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        SubmitMusic.io
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════ -->
+<footer>
+  <div class="footer-logo">Jason Cerf</div>
+  <p class="footer-note">
+    <a href="https://submitmusic.io">submitmusic.io</a>
+  </p>
+</footer>
+
+<!-- ════════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════════ -->
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+/* ── Cursor ── */
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx = window.innerWidth/2, my = window.innerHeight/2;
+let rx = mx, ry = my;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  gsap.to(cursor, { x: mx, y: my, duration: 0, overwrite: true });
+});
+
+function updateRing() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px';
+  ring.style.top = ry + 'px';
+  requestAnimationFrame(updateRing);
+}
+updateRing();
+
+/* ── Inject hero name letters ── */
+const name = "Jason Cerf";
+const heroName = document.getElementById('hero-name');
+name.split('').forEach(ch => {
+  const s = document.createElement('span');
+  if (ch === ' ') {
+    s.className = 'space';
+  } else {
+    s.className = 'letter';
+    s.textContent = ch;
+  }
+  heroName.appendChild(s);
+});
+
+/* ── Inject floating dots ── */
+const hero = document.getElementById('hero');
+for (let i = 0; i < 18; i++) {
+  const d = document.createElement('div');
+  d.className = 'dot';
+  d.style.left = Math.random() * 100 + '%';
+  d.style.bottom = (Math.random() * 30) + '%';
+  d.style.animationDuration = (6 + Math.random() * 10) + 's';
+  d.style.animationDelay = (Math.random() * 8) + 's';
+  hero.appendChild(d);
+}
+
+/* ── Hero entrance animation ── */
+const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+tl.to('.hero-eyebrow', { opacity: 1, y: 0, duration: 1, delay: .3 })
+  .to('.hero-name .letter', {
+    opacity: 1, y: 0, rotate: 0,
+    duration: .9,
+    stagger: .06,
+    ease: 'back.out(1.4)'
+  }, '-=.5')
+  .to('.hero-tagline', { opacity: 1, y: 0, duration: .8 }, '-=.3')
+  .to('.hero-scroll-hint', { opacity: 1, duration: .6 }, '-=.2');
+
+/* ── Morphing word ── */
+const words = ['Musician', 'Builder', 'Founder', 'Operator', 'Climber'];
+let wi = 0;
+const morphEl = document.getElementById('morph-word');
+
+function morphWord() {
+  wi = (wi + 1) % words.length;
+  gsap.to(morphEl, {
+    opacity: 0, y: -12, duration: .35,
+    onComplete: () => {
+      morphEl.textContent = words[wi];
+      gsap.to(morphEl, { opacity: 1, y: 0, duration: .4 });
+    }
+  });
+}
+setInterval(morphWord, 2400);
+
+/* ── Ticker ── */
+const tickerItems = [
+  { text: 'Music', sep: true },
+  { text: 'SubmitMusic.io', sep: true },
+  { text: '200k+ Recordings', sep: true },
+  { text: 'Driftwood Digital', sep: true },
+  { text: 'Handyman & Contracting', sep: true },
+  { text: 'AI Agents', sep: true },
+  { text: 'Agentify', sep: true },
+  { text: 'Rock Climbing', sep: true },
+  { text: 'Founder', sep: false },
+];
+
+function buildTicker() {
+  const track = document.getElementById('ticker');
+  const doubled = [...tickerItems, ...tickerItems];
+  doubled.forEach((item, i) => {
+    const span = document.createElement('span');
+    span.textContent = item.text;
+    if (i % 2 === 0) span.style.fontStyle = 'normal';
+    track.appendChild(span);
+    if (item.sep) {
+      const dot = document.createElement('span');
+      dot.className = 'sep';
+      dot.textContent = '·';
+      track.appendChild(dot);
+    }
+  });
+}
+buildTicker();
+
+/* ── Tape ── */
+const tapeItems = [
+  'SubmitMusic.io', '200,000+ recordings', 'Driftwood Digital', 'handyman & contracting',
+  'Agentify', 'AI agents that work', 'rock climbing', 'founder', 'builder',
+  'operator', 'musician', 'SubmitMusic.io', '200,000+ recordings', 'Driftwood Digital',
+  'handyman & contracting', 'Agentify', 'AI agents', 'rock climbing',
+];
+function buildTape() {
+  const inner = document.getElementById('tape-inner');
+  const doubled = [...tapeItems, ...tapeItems];
+  doubled.forEach((item, i) => {
+    const span = document.createElement('span');
+    span.textContent = item;
+    if (['SubmitMusic.io', 'Agentify', 'Driftwood Digital'].includes(item)) {
+      span.className = 'highlight';
+    }
+    inner.appendChild(span);
+  });
+}
+buildTape();
+
+/* ── Section scroll animations ── */
+// Section labels + headings
+document.querySelectorAll('.section-label').forEach(el => {
+  gsap.to(el, {
+    opacity: 1,
+    scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' },
+    duration: .7, delay: .1
+  });
+});
+
+document.querySelectorAll('.section-heading').forEach(el => {
+  gsap.fromTo(el,
+    { opacity: 0, y: 30 },
+    {
+      opacity: 1, y: 0, duration: 1, ease: 'power3.out',
+      scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' },
+    }
+  );
+});
+
+// Drawn lines
+document.querySelectorAll('.drawn-line').forEach(el => {
+  gsap.to(el, {
+    scaleX: 1,
+    duration: 1.2,
+    ease: 'power3.inOut',
+    scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' }
+  });
+});
+
+// Dividers
+document.querySelectorAll('.divider').forEach(el => {
+  gsap.to(el, {
+    opacity: 1, scaleX: 1,
+    duration: .8,
+    scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none none' }
+  });
+});
+
+// About text paragraphs
+document.querySelectorAll('.about-text p').forEach((el, i) => {
+  gsap.to(el, {
+    opacity: 1, y: 0,
+    duration: .8,
+    delay: i * .15,
+    ease: 'power2.out',
+    scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none none' }
+  });
+  gsap.fromTo(el, { y: 20 }, { y: 0,
+    duration: .8, delay: i*.15, ease:'power2.out',
+    scrollTrigger: { trigger: el, start: 'top 88%' }
+  });
+});
+
+// Stat items
+document.querySelectorAll('.stat-item').forEach((el, i) => {
+  gsap.to(el, {
+    opacity: 1,
+    duration: .7,
+    delay: i * .2,
+    scrollTrigger: { trigger: '.about-stats', start: 'top 80%', toggleActions: 'play none none none' }
+  });
+});
+
+// Counter animation for recordings
+let counterDone = false;
+ScrollTrigger.create({
+  trigger: '#rec-counter',
+  start: 'top 80%',
+  onEnter: () => {
+    if (counterDone) return;
+    counterDone = true;
+    const el = document.getElementById('rec-counter');
+    let val = 0;
+    const target = 200;
+    const step = target / 60;
+    const timer = setInterval(() => {
+      val = Math.min(val + step, target);
+      el.textContent = Math.floor(val);
+      if (val >= target) clearInterval(timer);
+    }, 16);
+  }
+});
+
+// Domain cards stagger
+document.querySelectorAll('.domain-card').forEach((el, i) => {
+  gsap.fromTo(el,
+    { opacity: 0, y: 40 },
+    {
+      opacity: 1, y: 0,
+      duration: .8,
+      delay: i * .12,
+      ease: 'power2.out',
+      scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' }
+    }
+  );
+});
+
+// Contact
+gsap.to('.contact-sub', {
+  opacity: 1,
+  duration: .8,
+  scrollTrigger: { trigger: '.contact-sub', start: 'top 85%', toggleActions: 'play none none none' }
+});
+gsap.to('.contact-links', {
+  opacity: 1,
+  duration: .8, delay: .2,
+  scrollTrigger: { trigger: '.contact-links', start: 'top 85%', toggleActions: 'play none none none' }
+});
+
+/* ── Parallax on rings ── */
+document.querySelectorAll('.hero-ring').forEach((el, i) => {
+  gsap.to(el, {
+    y: (i + 1) * -30,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: '#hero',
+      start: 'top top',
+      end: 'bottom top',
+      scrub: 1.5
+    }
+  });
+});
+
+/* ── Subtle parallax on hero name ── */
+gsap.to('#hero-name', {
+  y: 60,
+  ease: 'none',
+  scrollTrigger: {
+    trigger: '#hero',
+    start: 'top top',
+    end: 'bottom top',
+    scrub: 1
+  }
+});
+
+/* ── Smooth scroll to sections from nav (future use) ── */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+</body>
+</html>

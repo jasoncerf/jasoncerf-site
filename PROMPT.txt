@@ -1,0 +1,30 @@
+Build jasoncerf.com — a wildly creative, interactive personal website for Jason Cerf. This is a SINGLE index.html file with embedded CSS and JS (no build tools, no dependencies except CDN links).
+
+Jason is: entrepreneur, builder, operator. He runs Agentify (personal AI agents), SubmitMusic.io (200k music catalog), Driftwood Solutions (handyman in Texas), and has an Airbnb dome. He studied at Kenyon + Berklee, worked with major labels. Based in Driftwood, TX.
+
+DESIGN BRIEF: Super creative, interactive, humor-baked-in. Think: "this guy is clearly a web developer who also built an AI agent and a handyman company and a music catalog — and he does NOT take himself too seriously."
+
+REQUIRED FEATURES:
+1. CURSOR: Custom cursor that changes shape/emoji based on what you hover over (hammer on handyman section, robot on Agentify, music note on music, etc.)
+2. HERO: Massive animated heading "Jason Cerf" with a subtitle that TYPES OUT different things cycling with typewriter effect: "builder", "entrepreneur", "definitely not a piano teacher", "AI whisperer", "Texan", "Truck guy", "music catalog hoarder"
+3. SOUNDS: Click anywhere on the hero plays a random funny sound generated with Web Audio API (cowbell tone, rimshot, surprise chord — no external files)
+4. NAVIGATION: Floating nav that tilts/wobbles when you hover. Each nav item has an emoji. Clicking makes it bounce.
+5. SECTIONS (each with unique transition/animation):
+   a. AGENTIFY — Cards that flip on hover revealing pricing ($49/$99/$199/mo). Background: matrix-style falling text animation. CTA button that literally runs away from your cursor. URL: agentify.live
+   b. SUBMITMUSIC — Equalizer bars that animate. "200,000 songs" counter that ticks up when section is visible. Clicking the counter plays a generated synth note. URL: submitmusic.io
+   c. DRIFTWOOD SOLUTIONS — Section starts styled like a Craigslist ad (intentionally ugly, Comic Sans, blue links — as a joke), then on hover it transforms into a clean modern card. Tagline: "we fix things. probably."
+   d. AIRBNB DOME — Stars twinkling in the background. Parallax effect on scroll. "Coming Soon" badge.
+   e. ABOUT — Photo placeholder div with a tooltip "this is where a headshot would go if Jason remembered to take one". Sliding timeline of career highlights.
+6. EASTER EGG: Konami code (up up down down left right left right B A) triggers full-screen party mode with CSS confetti animation
+7. FOOTER: "Built by Jason Cerf with coffee, AI, and questionable life choices. 2026"
+8. SCROLL: Smooth scroll. Sections animate in from different directions using IntersectionObserver.
+9. COLOR SCHEME: Dark base (#0a0a0f), accent colors per section (orange for Agentify #ff6b35, purple for music #7c3aed, green for handyman #10b981, teal for dome #06b6d4). Color sweep transitions between sections.
+10. MOBILE: Responsive. Animations toned down on mobile via prefers-reduced-motion.
+
+TONE: Funny but capable. Professional-ish but clearly has a personality. The site itself should be proof that he can build cool stuff.
+
+Write the complete index.html file. Make it genuinely impressive and fun. Pull out all the stops on the CSS animations and JS interactions. This should make someone go "wow this guy is creative" when they land on it.
+
+Also create a simple README.md with deployment instructions (Netlify drag-and-drop, or any static host).
+
+When completely finished, run: openclaw system event --text "Done: jasoncerf.com site built — index.html ready to preview" --mode now
