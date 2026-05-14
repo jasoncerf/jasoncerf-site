@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lab — Jason Cerf</title>
+  <meta name="description" content="Interactive experiments. Generative design. Procedural systems.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/three@0.162.0/build/three.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #F7F5F0;
+      --warm:  #EDEAD3;
+      --tan:   #B08A5C;
+      --tan-light: #CDB08A;
+      --ink:   #18170F;
+      --mid:   #6B6659;
+      --linen: #E3DDD2;
+      --white: #FDFCFA;
+    }
+
+    html { font-size: 16px; }
+    body {
+      background: var(--cream);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
+    ::-webkit-scrollbar { width: 2px; }
+    ::-webkit-scrollbar-track { background: var(--cream); }
+    ::-webkit-scrollbar-thumb { background: var(--tan-light); }
+
+    /* ─── Nav ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 200;
+      padding: 1.6rem 2.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(247, 245, 240, 0.95); backdrop-filter: blur(4px);
+      border-bottom: 1px solid rgba(176,138,92,.1);
+    }
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem; font-weight: 400; letter-spacing: .04em;
+      color: var(--ink); text-decoration: none;
+    }
+    .nav-links {
+      display: flex; gap: 2.5rem; list-style: none;
+    }
+    .nav-links a {
+      font-size: .68rem; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--mid); text-decoration: none;
+      transition: color .25s;
+    }
+    .nav-links a:hover { color: var(--ink); }
+
+    /* ─── Hero ─── */
+    #hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: flex-start;
+      padding: 0 2.5rem;
+      padding-top: 120px;
+    }
+
+    .hero-tag {
+      font-size: .68rem; letter-spacing: .22em; text-transform: uppercase;
+      color: var(--tan); margin-bottom: 1.5rem;
+      opacity: 0; transform: translateY(12px);
+      animation: fadeInUp .8s ease forwards;
+    }
+
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3rem, 8vw, 8rem);
+      font-weight: 300; line-height: .95;
+      letter-spacing: -.025em;
+      margin-bottom: 2rem;
+      opacity: 0; transform: translateY(24px);
+      animation: fadeInUp 1s ease .15s forwards;
+    }
+
+    .hero-desc {
+      max-width: 560px;
+      font-size: 1.05rem; line-height: 1.85; color: var(--mid);
+      opacity: 0; transform: translateY(12px);
+      animation: fadeInUp .8s ease .3s forwards;
+      margin-bottom: 3rem;
+    }
+
+    .cta-button {
+      font-size: .72rem; letter-spacing: .16em; text-transform: uppercase;
+      background: var(--tan); color: white; padding: 1rem 2.5rem;
+      border: none; cursor: pointer; transition: background .25s;
+      text-decoration: none; display: inline-block;
+      opacity: 0; transform: translateY(12px);
+      animation: fadeInUp .8s ease .45s forwards;
+    }
+
+    .cta-button:hover { background: var(--tan-light); }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── Canvas Section ─── */
+    #ant-experiment {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      background: linear-gradient(135deg, #18170F 0%, #23221A 100%);
+      overflow: hidden;
+      margin-top: 4rem;
+    }
+
+    #ant-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+    }
+
+    .experiment-label {
+      position: absolute; top: 2rem; left: 2.5rem;
+      font-size: .65rem; letter-spacing: .2em; text-transform: uppercase;
+      color: rgba(176,138,92,.6); z-index: 10;
+      pointer-events: none;
+    }
+
+    .experiment-info {
+      position: absolute; bottom: 2rem; left: 2.5rem;
+      font-size: .72rem; letter-spacing: .1em;
+      color: rgba(237,232,211,.5); font-family: 'DM Sans', monospace;
+      z-index: 10; pointer-events: none;
+      max-width: 300px;
+    }
+
+    .experiment-info p { margin: 0.4rem 0; }
+
+    .experiment-controls {
+      position: absolute; bottom: 2rem; right: 2.5rem;
+      font-size: .72rem; letter-spacing: .1em;
+      color: rgba(237,232,211,.5);
+      z-index: 10;
+      text-align: right;
+    }
+
+    .experiment-controls p { margin: 0.3rem 0; }
+
+    /* ─── Info Section ─── */
+    #info {
+      background: var(--white);
+      padding: 8rem 2.5rem;
+    }
+
+    .inner { max-width: 1120px; margin: 0 auto; }
+
+    .section-tag {
+      font-size: .65rem; letter-spacing: .25em; text-transform: uppercase;
+      color: var(--tan); margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.4rem, 5vw, 4.2rem);
+      font-weight: 300; line-height: 1.05; margin-bottom: 2rem;
+    }
+
+    .info-text {
+      max-width: 700px;
+      font-size: 1.05rem; line-height: 1.85; color: var(--mid);
+      margin-bottom: 2rem;
+    }
+
+    .tech-list {
+      display: flex; flex-wrap: wrap; gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .tech-tag {
+      font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+      background: var(--linen); color: var(--ink);
+      padding: .5rem 1.2rem; border-radius: 1px;
+    }
+
+    /* ─── Footer ─── */
+    footer {
+      padding: 2rem 2.5rem; background: var(--white);
+      border-top: 1px solid var(--linen);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 1rem;
+    }
+
+    .footer-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem; color: rgba(24,23,15,.35);
+    }
+
+    .footer-links { display: flex; gap: 1.5rem; }
+
+    .footer-links a {
+      font-size: .65rem; letter-spacing: .15em; text-transform: uppercase;
+      color: rgba(24,23,15,.25); text-decoration: none; transition: color .25s;
+    }
+
+    .footer-links a:hover { color: rgba(24,23,15,.6); }
+
+    @media (max-width: 600px) {
+      nav .nav-links { display: none; }
+      #hero { padding: 0 1.5rem; padding-top: 120px; }
+      section { padding: 5rem 1.5rem; }
+      #ant-experiment { margin-top: 2rem; }
+      .experiment-label, .experiment-info, .experiment-controls { font-size: .6rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- ─── NAV ─── -->
+<nav>
+  <a href="/" class="nav-logo">JC</a>
+  <ul class="nav-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="/now">Now</a></li>
+    <li><a href="/anternet">Anternet</a></li>
+    <li><a href="/lab">Lab</a></li>
+    <li><a href="/signal">Signal</a></li>
+  </ul>
+</nav>
+
+<!-- ─── HERO ─── -->
+<section id="hero">
+  <p class="hero-tag">Experiments</p>
+  <h1 class="hero-title">The Lab.</h1>
+  <p class="hero-desc">
+    Procedural systems. Emergent behavior. Systems that generate complexity from simple rules. Click anywhere to create food sources and watch the colony adapt.
+  </p>
+  <a href="#ant-experiment" class="cta-button">See the experiment</a>
+</section>
+
+<!-- ─── ANT COLONY SIMULATION ─── -->
+<div id="ant-experiment">
+  <canvas id="ant-canvas"></canvas>
+  <div class="experiment-label">Ant Colony Simulation</div>
+  <div class="experiment-info">
+    <p><strong>Food sources:</strong> <span id="food-count">0</span></p>
+    <p><strong>Colony size:</strong> <span id="ant-count">0</span> ants</p>
+    <p><strong>Pheromone trails:</strong> Active</p>
+  </div>
+  <div class="experiment-controls">
+    <p>Click to create food</p>
+    <p id="instructions">Move mouse to influence</p>
+  </div>
+</div>
+
+<!-- ─── INFO SECTION ─── -->
+<section id="info">
+  <div class="inner">
+    <p class="section-tag">How it works</p>
+    <h2 class="section-title">Emergence from simplicity.</h2>
+    <p class="info-text">
+      This is a boids-style ant colony simulation running on the GPU. Each ant follows three simple rules: (1) move toward pheromone trails, (2) avoid obstacles and other ants, (3) lay pheromone when returning to the nest with food.
+    </p>
+    <p class="info-text">
+      The complexity you see — the foraging patterns, the traffic lanes, the collective intelligence — emerges from these simple rules interacting at scale. No central planning. No predefined paths. Just ants being ants.
+    </p>
+    <p class="info-text">
+      Click to drop food. The ants will find it, recruit each other, and optimize their paths over time. Mouse over the canvas to see pheromone concentration shift in response to your presence.
+    </p>
+    <div class="tech-list">
+      <div class="tech-tag">Three.js</div>
+      <div class="tech-tag">WebGL Shaders</div>
+      <div class="tech-tag">Procedural Animation</div>
+      <div class="tech-tag">Particle Systems</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer>
+  <span class="footer-name">Jason Cerf</span>
+  <div class="footer-links">
+    <a href="/">Home</a>
+    <a href="/now">Now</a>
+    <a href="/anternet">Anternet</a>
+    <a href="/lab">Lab</a>
+    <a href="/signal">Signal</a>
+  </div>
+</footer>
+
+<script src="https://unpkg.net/lenis@1.1.13/dist/lenis.min.js"></script>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// LENIS SMOOTH SCROLL
+// ─────────────────────────────────────────────────────────────
+const lenis = new Lenis({ lerp: 0.1, duration: 1.4 });
+
+function raf(time) {
+  lenis.raf(time);
+  requestAnimationFrame(raf);
+}
+requestAnimationFrame(raf);
+
+// ─────────────────────────────────────────────────────────────
+// ANT COLONY SIMULATION (THREE.JS + CUSTOM SHADERS)
+// ─────────────────────────────────────────────────────────────
+const canvas = document.getElementById('ant-canvas');
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+
+renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+renderer.setClearColor(0x18170F, 1);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+camera.position.z = 50;
+
+// ─── Simulation State ─── 
+const SIM = {
+  antCount: 400,
+  ants: [],
+  foodSources: [],
+  pheromoneMap: null,
+  time: 0,
+  mousePos: { x: 0, y: 0 },
+  mouseInfluence: 0,
+};
+
+// ─── Ant Class ─── 
+class Ant {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.vx = (Math.random() - 0.5) * 0.5;
+    this.vy = (Math.random() - 0.5) * 0.5;
+    this.angle = Math.random() * Math.PI * 2;
+    this.speed = 0.3 + Math.random() * 0.1;
+    this.hasFood = false;
+    this.pheromone = 0;
+    this.sensorDist = 2;
+    this.searchRadius = 8;
+  }
+
+  update(foodSources, otherAnts) {
+    // Find nearest food
+    let nearestFood = null;
+    let minDist = this.searchRadius;
+
+    for (let food of foodSources) {
+      const dx = food.x - this.x;
+      const dy = food.y - this.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < minDist) {
+        minDist = dist;
+        nearestFood = food;
+      }
+    }
+
+    // Move toward food or home
+    if (nearestFood && !this.hasFood) {
+      const dx = nearestFood.x - this.x;
+      const dy = nearestFood.y - this.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 0.5) {
+        this.hasFood = true;
+        nearestFood.ants++;
+      } else {
+        this.angle = Math.atan2(dy, dx);
+      }
+    } else if (this.hasFood) {
+      // Return to home (0, 0)
+      const dx = 0 - this.x;
+      const dy = 0 - this.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 1) {
+        this.hasFood = false;
+      } else {
+        this.angle += (Math.random() - 0.5) * 0.3;
+        this.angle = Math.atan2(dy, dx) * 0.8 + this.angle * 0.2;
+      }
+    } else {
+      // Random walk with slight bias
+      this.angle += (Math.random() - 0.5) * 0.4;
+    }
+
+    // Add small random drift
+    this.angle += (Math.random() - 0.5) * 0.15;
+
+    // Update position
+    this.vx = Math.cos(this.angle) * this.speed;
+    this.vy = Math.sin(this.angle) * this.speed;
+
+    this.x += this.vx;
+    this.y += this.vy;
+
+    // Boundary wrap
+    const w = canvas.clientWidth / 10;
+    const h = canvas.clientHeight / 10;
+    if (this.x < -w) this.x = w;
+    if (this.x > w) this.x = -w;
+    if (this.y < -h) this.y = h;
+    if (this.y > h) this.y = -h;
+
+    // Pheromone trail
+    this.pheromone = this.hasFood ? 0.8 : 0.3;
+  }
+}
+
+// Initialize ants
+for (let i = 0; i < SIM.antCount; i++) {
+  const angle = Math.random() * Math.PI * 2;
+  const dist = Math.random() * 5;
+  SIM.ants.push(new Ant(Math.cos(angle) * dist, Math.sin(angle) * dist));
+}
+
+// Ant particle geometry and material
+const antGeo = new THREE.BufferGeometry();
+const antPositions = new Float32Array(SIM.antCount * 3);
+const antColors = new Float32Array(SIM.antCount * 3);
+
+SIM.ants.forEach((ant, i) => {
+  antPositions[i * 3] = ant.x;
+  antPositions[i * 3 + 1] = ant.y;
+  antPositions[i * 3 + 2] = 0;
+
+  const hasFood = ant.hasFood ? 1 : 0;
+  antColors[i * 3] = 0.8 + hasFood * 0.2;
+  antColors[i * 3 + 1] = 0.55 + hasFood * 0.2;
+  antColors[i * 3 + 2] = 0.36;
+});
+
+antGeo.setAttribute('position', new THREE.BufferAttribute(antPositions, 3));
+antGeo.setAttribute('color', new THREE.BufferAttribute(antColors, 3));
+
+const antMat = new THREE.PointsMaterial({
+  size: 0.15,
+  vertexColors: true,
+  transparent: true,
+  opacity: 0.85,
+  sizeAttenuation: true,
+});
+
+const antPoints = new THREE.Points(antGeo, antMat);
+scene.add(antPoints);
+
+// Home (nest) visualization
+const homeGeo = new THREE.CircleGeometry(0.8, 16);
+const homeMat = new THREE.MeshBasicMaterial({ color: 0xb08a5c, transparent: true, opacity: 0.3 });
+const homeCircle = new THREE.Mesh(homeGeo, homeMat);
+scene.add(homeCircle);
+
+// Food source visualization
+const foodGeo = new THREE.CircleGeometry(0.5, 8);
+let foodMeshes = [];
+
+// ─── Mouse Events ─── 
+canvas.addEventListener('click', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const x = ((e.clientX - rect.left) / rect.width - 0.5) * (canvas.clientWidth / 10);
+  const y = -((e.clientY - rect.top) / rect.height - 0.5) * (canvas.clientHeight / 10);
+
+  SIM.foodSources.push({ x, y, ants: 0 });
+
+  // Add food mesh
+  const foodMat = new THREE.MeshBasicMaterial({ color: 0xd4a574, transparent: true, opacity: 0.6 });
+  const foodMesh = new THREE.Mesh(foodGeo, foodMat);
+  foodMesh.position.set(x, y, 0);
+  scene.add(foodMesh);
+  foodMeshes.push(foodMesh);
+
+  document.getElementById('food-count').textContent = SIM.foodSources.length;
+});
+
+canvas.addEventListener('mousemove', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  SIM.mousePos.x = ((e.clientX - rect.left) / rect.width - 0.5) * (canvas.clientWidth / 10);
+  SIM.mousePos.y = -((e.clientY - rect.top) / rect.height - 0.5) * (canvas.clientHeight / 10);
+  SIM.mouseInfluence = 0.5;
+});
+
+canvas.addEventListener('mouseleave', () => {
+  SIM.mouseInfluence = Math.max(0, SIM.mouseInfluence - 0.02);
+});
+
+// ─── Animation Loop ─── 
+function animate() {
+  requestAnimationFrame(animate);
+
+  SIM.time++;
+  SIM.mouseInfluence = Math.max(0, SIM.mouseInfluence - 0.01);
+
+  // Update ants
+  SIM.ants.forEach(ant => {
+    ant.update(SIM.foodSources, SIM.ants);
+  });
+
+  // Update ant positions in geometry
+  const posAttr = antGeo.attributes.position;
+  const colAttr = antGeo.attributes.color;
+
+  SIM.ants.forEach((ant, i) => {
+    posAttr.array[i * 3] = ant.x;
+    posAttr.array[i * 3 + 1] = ant.y;
+    posAttr.array[i * 3 + 2] = 0;
+
+    const hasFood = ant.hasFood ? 1 : 0;
+    colAttr.array[i * 3] = 0.8 + hasFood * 0.2;
+    colAttr.array[i * 3 + 1] = 0.55 + hasFood * 0.2;
+    colAttr.array[i * 3 + 2] = 0.36;
+  });
+
+  posAttr.needsUpdate = true;
+  colAttr.needsUpdate = true;
+
+  // Update food meshes
+  foodMeshes.forEach((mesh, i) => {
+    if (i < SIM.foodSources.length) {
+      const food = SIM.foodSources[i];
+      mesh.position.set(food.x, food.y, 0);
+      mesh.scale.setScalar(0.5 + food.ants * 0.1);
+      mesh.material.opacity = 0.6 + Math.sin(SIM.time * 0.05) * 0.15;
+    }
+  });
+
+  // Update ant count
+  document.getElementById('ant-count').textContent = SIM.antCount;
+
+  // Render
+  renderer.render(scene, camera);
+}
+
+animate();
+
+// ─── Window Resize ─── 
+window.addEventListener('resize', () => {
+  const w = canvas.clientWidth;
+  const h = canvas.clientHeight;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+});
+
+// Scroll to experiment
+document.querySelector('.cta-button').addEventListener('click', (e) => {
+  e.preventDefault();
+  const target = document.getElementById('ant-experiment');
+  lenis.scrollTo(target, { duration: 1.8 });
+});
+</script>
+</body>
+</html>

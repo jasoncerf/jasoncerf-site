@@ -3,1032 +3,1376 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jason Cerf</title>
+  <title>Jason Cerf — Builder</title>
+  <meta name="description" content="Building things that run without him. Agent infrastructure. Music. The trades.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+  <script src="https://unpkg.com/three@0.162.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --cream: #F8F6F1;
-      --warm: #EDE8DF;
-      --tan: #B89B72;
-      --tan-light: #D4BC9E;
-      --dark: #19180F;
-      --mid: #706B62;
-      --sage: #7A9070;
-      --ink: #2A2822;
-      --linen: #EAE5DB;
+      --cream: #F7F5F0;
+      --warm:  #EDEAD3;
+      --tan:   #B08A5C;
+      --tan-light: #CDB08A;
+      --ink:   #18170F;
+      --mid:   #6B6659;
+      --linen: #E3DDD2;
+      --white: #FDFCFA;
     }
 
-    html {
-      font-size: 16px;
-      scroll-behavior: smooth;
-    }
-
+    html { font-size: 16px; }
     body {
       background: var(--cream);
-      color: var(--dark);
+      color: var(--ink);
       font-family: 'DM Sans', sans-serif;
       font-weight: 300;
       overflow-x: hidden;
       cursor: none;
     }
 
-    /* ── Custom Cursor ── */
+    /* ─── Cursor ─── */
     #cursor {
-      position: fixed;
-      width: 10px; height: 10px;
-      background: var(--tan);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 9999;
+      position: fixed; width: 8px; height: 8px;
+      background: var(--tan); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
       transform: translate(-50%,-50%);
-      transition: width .25s, height .25s, background .25s;
+      transition: width .2s, height .2s, opacity .2s;
       will-change: transform;
     }
     #cursor-ring {
-      position: fixed;
-      width: 36px; height: 36px;
-      border: 1px solid rgba(184,155,114,.4);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 9998;
+      position: fixed; width: 32px; height: 32px;
+      border: 1px solid rgba(176,138,92,.35); border-radius: 50%;
+      pointer-events: none; z-index: 9998;
       transform: translate(-50%,-50%);
-      transition: all .12s ease-out;
+      transition: width .3s, height .3s;
       will-change: transform;
     }
-    body:has(a:hover) #cursor, body:has(button:hover) #cursor {
-      width: 20px; height: 20px;
-      background: var(--sage);
-    }
+    body:hover #cursor { opacity: 1; }
+    .cursor-expand #cursor { width: 14px; height: 14px; }
+    .cursor-expand #cursor-ring { width: 48px; height: 48px; }
 
-    /* ── Scrollbar ── */
-    ::-webkit-scrollbar { width: 3px; }
+    /* ─── Scrollbar ─── */
+    ::-webkit-scrollbar { width: 2px; }
     ::-webkit-scrollbar-track { background: var(--cream); }
-    ::-webkit-scrollbar-thumb { background: var(--tan-light); border-radius: 2px; }
+    ::-webkit-scrollbar-thumb { background: var(--tan-light); }
 
-    /* ── Noise overlay ── */
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 9000;
-      opacity: .5;
+    /* ─── Nav ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 200;
+      padding: 1.6rem 2.5rem;
+      display: flex; align-items: center; justify-content: space-between;
     }
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem; font-weight: 400; letter-spacing: .04em;
+      color: var(--ink); text-decoration: none;
+    }
+    .nav-links {
+      display: flex; gap: 2.5rem; list-style: none;
+    }
+    .nav-links a {
+      font-size: .68rem; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--mid); text-decoration: none;
+      transition: color .25s;
+      display: inline-block;
+    }
+    .nav-links a:hover { color: var(--ink); }
 
-    /* ── Hero ── */
+    /* ─── Hero ─── */
     #hero {
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 4rem 1.5rem 4rem;
-      position: relative;
-      overflow: hidden;
+      display: flex; flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 2.5rem 5rem;
+      position: relative; overflow: hidden;
     }
-
-    /* Animated background rings */
-    .hero-ring {
-      position: absolute;
-      border-radius: 50%;
-      border: 1px solid rgba(184,155,114,0.15);
-      animation: ringPulse 8s ease-in-out infinite;
-      pointer-events: none;
+    .hero-bg-text {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(14rem, 28vw, 26rem);
+      font-weight: 300; line-height: 1;
+      color: rgba(176,138,92,.055);
+      white-space: nowrap; pointer-events: none;
+      user-select: none; letter-spacing: -.03em;
     }
-    .hero-ring:nth-child(1) { width: 340px; height: 340px; animation-delay: 0s; }
-    .hero-ring:nth-child(2) { width: 560px; height: 560px; animation-delay: 1.5s; }
-    .hero-ring:nth-child(3) { width: 800px; height: 800px; animation-delay: 3s; }
-    .hero-ring:nth-child(4) { width: 1080px; height: 1080px; animation-delay: 4.5s; }
-
-    @keyframes ringPulse {
-      0%, 100% { transform: scale(1); opacity: .3; }
-      50% { transform: scale(1.04); opacity: .6; }
-    }
-
-    /* Floating dots */
-    .dot {
-      position: absolute;
-      width: 4px; height: 4px;
-      background: var(--tan-light);
-      border-radius: 50%;
-      opacity: 0;
-      animation: floatDot linear infinite;
-    }
-    @keyframes floatDot {
-      0% { transform: translateY(0) scale(0); opacity: 0; }
-      10% { opacity: .6; transform: scale(1); }
-      90% { opacity: .3; }
-      100% { transform: translateY(-120px) scale(0.5); opacity: 0; }
-    }
-
     .hero-eyebrow {
-      font-family: 'DM Sans', sans-serif;
-      font-size: .72rem;
-      letter-spacing: .25em;
-      text-transform: uppercase;
-      color: var(--tan);
-      margin-bottom: 2rem;
-      opacity: 0;
+      font-size: .68rem; letter-spacing: .22em; text-transform: uppercase;
+      color: var(--tan); margin-bottom: 1.2rem;
+      opacity: 0; transform: translateY(12px);
+      transition: opacity .8s ease, transform .8s ease;
     }
-
+    .hero-eyebrow.visible { opacity: 1; transform: translateY(0); }
     .hero-name {
       font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(3rem, 14vw, 12rem);
-      font-weight: 300;
-      line-height: .9;
-      letter-spacing: -.02em;
-      text-align: center;
-      position: relative;
-      white-space: nowrap;
+      font-size: clamp(4rem, 12vw, 10rem);
+      font-weight: 300; line-height: .92;
+      letter-spacing: -.025em;
+      opacity: 0; transform: translateY(24px);
+      transition: opacity 1s ease .2s, transform 1s ease .2s;
     }
-
-    .hero-name .letter {
-      display: inline-block;
-      opacity: 0;
-      transform: translateY(40px) rotate(2deg);
-    }
-    .hero-name .space { display: inline-block; width: .35em; }
-
-    .hero-tagline {
-      margin-top: 2.5rem;
+    .hero-name.visible { opacity: 1; transform: translateY(0); }
+    .hero-descriptor {
+      margin-top: 2rem;
       font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(1rem, 2.5vw, 1.5rem);
-      font-style: italic;
-      color: var(--mid);
-      text-align: center;
-      opacity: 0;
-      white-space: nowrap;
+      font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+      font-style: italic; color: var(--mid);
+      opacity: 0; transform: translateY(12px);
+      transition: opacity .8s ease .5s, transform .8s ease .5s;
     }
-    @media (max-width: 400px) {
-      .hero-tagline { white-space: normal; }
+    .hero-descriptor.visible { opacity: 1; transform: translateY(0); }
+    .hero-scroll {
+      position: absolute; right: 2.5rem; bottom: 5rem;
+      display: flex; flex-direction: column; align-items: center; gap: .6rem;
+      opacity: 0; animation: fadeInUp .8s ease .9s forwards;
     }
-
-    /* Morphing words */
-    #morph-word {
-      display: inline-block;
-      min-width: 8rem;
-      color: var(--tan);
-      font-style: normal;
-      font-weight: 400;
+    .hero-scroll span {
+      font-size: .6rem; letter-spacing: .2em; text-transform: uppercase;
+      color: var(--tan); writing-mode: vertical-rl;
     }
-
-    .hero-scroll-hint {
-      position: absolute;
-      bottom: 2.5rem;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: .5rem;
-      opacity: 0;
-    }
-    .hero-scroll-hint span {
-      font-size: .65rem;
-      letter-spacing: .2em;
-      text-transform: uppercase;
-      color: var(--mid);
-    }
-    .scroll-line {
-      width: 1px;
-      height: 40px;
+    .hero-scroll-line {
+      width: 1px; height: 48px;
       background: linear-gradient(to bottom, var(--tan), transparent);
-      animation: scrollDrop 2s ease-in-out infinite;
+      animation: scrollPulse 2.2s ease-in-out infinite;
     }
-    @keyframes scrollDrop {
-      0% { transform: scaleY(0); transform-origin: top; }
-      50% { transform: scaleY(1); transform-origin: top; }
-      51% { transform: scaleY(1); transform-origin: bottom; }
-      100% { transform: scaleY(0); transform-origin: bottom; }
+    @keyframes scrollPulse {
+      0%,100% { opacity: .4; transform: scaleY(.6); transform-origin: top; }
+      50% { opacity: 1; transform: scaleY(1); }
     }
 
-    /* ── Ticker ── */
-    .ticker-wrap {
-      overflow: hidden;
-      border-top: 1px solid var(--linen);
-      border-bottom: 1px solid var(--linen);
-      padding: .9rem 0;
-      background: var(--warm);
+    /* ─── Section base ─── */
+    section { padding: 8rem 2.5rem; }
+    .inner { max-width: 1120px; margin: 0 auto; }
+    .section-tag {
+      font-size: .65rem; letter-spacing: .25em; text-transform: uppercase;
+      color: var(--tan); margin-bottom: 1rem;
     }
-    .ticker-track {
-      display: flex;
-      gap: 0;
-      animation: tickerScroll 22s linear infinite;
-      white-space: nowrap;
-    }
-    .ticker-track span {
+    .section-title {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 1.1rem;
-      font-style: italic;
-      color: var(--mid);
-      padding: 0 2.5rem;
+      font-size: clamp(2.4rem, 5vw, 4.2rem);
+      font-weight: 300; line-height: 1.05; margin-bottom: 1.5rem;
     }
-    .ticker-track .sep {
-      color: var(--tan);
-      font-style: normal;
-      padding: 0;
-    }
-    @keyframes tickerScroll {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
-    }
+    .divider { width: 40px; height: 1px; background: var(--tan-light); margin: 2rem 0; }
 
-    /* ── Sections ── */
-    section { padding: 7rem 2rem; }
-
-    .section-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    .section-label {
-      font-size: .65rem;
-      letter-spacing: .25em;
-      text-transform: uppercase;
-      color: var(--tan);
-      margin-bottom: 1.2rem;
-      opacity: 0;
-    }
-
-    .section-heading {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(2.8rem, 6vw, 5rem);
-      font-weight: 300;
-      line-height: 1.05;
-      margin-bottom: 1.5rem;
-      opacity: 0;
-    }
-
-    /* ── About ── */
-    #about {
-      background: var(--cream);
-    }
-    .about-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 5rem;
-      align-items: start;
-    }
-    @media (max-width: 720px) {
-      .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
-    }
-    .about-text p {
-      font-size: 1.05rem;
-      line-height: 1.8;
-      color: var(--mid);
-      margin-bottom: 1.2rem;
-      opacity: 0;
-    }
-    .about-text p strong {
-      color: var(--ink);
-      font-weight: 500;
-    }
-    .about-stats {
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
-    }
-    .stat-item { opacity: 0; }
-    .stat-number {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 3.5rem;
-      font-weight: 300;
-      color: var(--ink);
-      line-height: 1;
-    }
-    .stat-label {
-      font-size: .78rem;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color: var(--mid);
-      margin-top: .3rem;
-    }
-    .stat-note {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: .9rem;
-      font-style: italic;
-      color: var(--tan);
-      margin-top: .15rem;
-    }
-
-    /* ── Domains ── */
-    #domains {
-      background: var(--warm);
-    }
-    .domains-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1.5px;
-      margin-top: 4rem;
-      background: var(--linen);
-    }
-    @media (max-width: 720px) {
-      .domains-grid { grid-template-columns: 1fr; }
-    }
-
-    .domain-card {
-      background: var(--cream);
-      padding: 3.5rem 3rem;
-      position: relative;
-      overflow: hidden;
-      cursor: pointer;
-      opacity: 0;
-      transition: background .4s ease;
-    }
-    .domain-card:hover { background: var(--warm); }
-
-    .domain-card::after {
-      content: '';
-      position: absolute;
-      bottom: 0; left: 0;
-      width: 0;
-      height: 2px;
-      background: var(--tan);
-      transition: width .5s cubic-bezier(.25,.46,.45,.94);
-    }
-    .domain-card:hover::after { width: 100%; }
-
-    .domain-number {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: .85rem;
-      color: var(--tan);
-      letter-spacing: .1em;
-      margin-bottom: 1.5rem;
-    }
-
-    .domain-icon {
-      font-size: 2rem;
-      margin-bottom: 1.2rem;
-      display: block;
-      transition: transform .4s cubic-bezier(.34,1.56,.64,1);
-    }
-    .domain-card:hover .domain-icon { transform: scale(1.15) rotate(-5deg); }
-
-    .domain-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 2.2rem;
-      font-weight: 400;
-      line-height: 1.1;
-      margin-bottom: 1rem;
-    }
-
-    .domain-desc {
-      font-size: .9rem;
-      line-height: 1.75;
-      color: var(--mid);
-      max-width: 30ch;
-    }
-
-    .domain-link {
-      display: inline-block;
-      margin-top: 1.5rem;
-      font-size: .72rem;
-      letter-spacing: .15em;
-      text-transform: uppercase;
-      color: var(--tan);
-      text-decoration: none;
-      border-bottom: 1px solid transparent;
-      transition: border-color .3s;
-    }
-    .domain-link:hover { border-color: var(--tan); }
-
-    .domain-aside {
-      position: absolute;
-      bottom: 1.5rem; right: 2rem;
-      font-family: 'Cormorant Garamond', serif;
-      font-size: .8rem;
-      font-style: italic;
-      color: var(--tan-light);
-      opacity: 0;
-      transition: opacity .3s .1s;
-    }
-    .domain-card:hover .domain-aside { opacity: 1; }
-
-    /* ── Work tape ── */
-    #tape {
-      padding: 0;
+    /* ─── Globe Section ─── */
+    #globe-section {
       background: var(--ink);
-      overflow: hidden;
-    }
-    .tape-inner {
-      display: flex;
-      animation: tapeScroll 30s linear infinite;
-      white-space: nowrap;
-    }
-    .tape-inner span {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.05rem;
-      font-style: italic;
-      color: rgba(255,255,255,.25);
-      padding: 1rem 2rem;
-      border-right: 1px solid rgba(255,255,255,.06);
-      flex-shrink: 0;
-    }
-    .tape-inner .highlight { color: rgba(184,155,114,.6); }
-    @keyframes tapeScroll {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
-    }
-
-    /* ── Contact ── */
-    #contact {
-      background: var(--cream);
-      text-align: center;
-    }
-    #contact .section-heading { text-align: center; margin-bottom: .5rem; }
-    .contact-sub {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.2rem;
-      font-style: italic;
-      color: var(--mid);
-      margin-bottom: 3rem;
-      opacity: 0;
-    }
-    .contact-links {
-      display: flex;
-      justify-content: center;
-      gap: 2rem;
-      flex-wrap: wrap;
-      opacity: 0;
-    }
-    .contact-link {
-      display: inline-flex;
-      align-items: center;
-      gap: .5rem;
-      font-size: .75rem;
-      letter-spacing: .15em;
-      text-transform: uppercase;
-      color: var(--ink);
-      text-decoration: none;
-      padding: .9rem 2rem;
-      border: 1px solid var(--linen);
-      border-radius: 2px;
-      transition: all .3s ease;
+      padding: 0; overflow: hidden;
       position: relative;
-      overflow: hidden;
+      height: clamp(500px, 70vw, 900px);
     }
-    .contact-link::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: var(--tan);
-      transform: scaleX(0);
-      transform-origin: left;
-      transition: transform .35s cubic-bezier(.25,.46,.45,.94);
-      z-index: -1;
+    #globe-canvas {
+      display: block; width: 100%; height: 100%;
+      position: absolute; inset: 0;
     }
-    .contact-link:hover {
-      color: white;
-      border-color: var(--tan);
-    }
-    .contact-link:hover::before { transform: scaleX(1); }
-
-    /* ── Footer ── */
-    footer {
-      padding: 2.5rem 2rem;
-      border-top: 1px solid var(--linen);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-    .footer-logo {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.2rem;
-      font-weight: 300;
-      color: var(--ink);
-    }
-    .footer-note {
-      font-size: .72rem;
-      color: var(--mid);
-      letter-spacing: .05em;
-    }
-    .footer-note a { color: var(--tan); text-decoration: none; }
-
-    /* ── Animations / Utilities ── */
-    .reveal { overflow: hidden; }
-
-    @keyframes clipReveal {
-      from { clip-path: inset(0 100% 0 0); }
-      to { clip-path: inset(0 0% 0 0); }
-    }
-
-    /* Parallax */
-    .parallax-slow { will-change: transform; }
-
-    /* Line draw */
-    .drawn-line {
-      display: block;
-      height: 1px;
-      background: var(--tan);
-      transform: scaleX(0);
-      transform-origin: left;
-      margin: 2rem 0;
-    }
-
-    /* Counter */
-    .counter-wrap { position: relative; display: inline-block; }
-    .counter-tooltip {
-      position: absolute;
-      bottom: 110%;
-      left: 50%;
-      transform: translateX(-50%) translateY(4px);
-      background: var(--ink);
-      color: var(--tan-light);
-      font-family: 'Cormorant Garamond', serif;
-      font-size: .85rem;
-      font-style: italic;
-      white-space: nowrap;
-      padding: .35rem .8rem;
-      border-radius: 2px;
-      opacity: 0;
+    .globe-label {
+      position: absolute; bottom: 2.5rem; left: 2.5rem;
+      font-size: .65rem; letter-spacing: .2em; text-transform: uppercase;
+      color: rgba(176,138,92,.5); z-index: 10;
       pointer-events: none;
+    }
+    .globe-coord {
+      position: absolute; bottom: 2.5rem; right: 2.5rem;
+      font-size: .65rem; letter-spacing: .1em;
+      color: rgba(176,138,92,.35); font-family: 'DM Sans', monospace;
+      z-index: 10; pointer-events: none;
+    }
+
+    /* ─── Now ─── */
+    #now { background: var(--white); }
+    .now-intro {
+      max-width: 560px;
+      font-size: 1.05rem; line-height: 1.85; color: var(--mid);
+      margin-bottom: 4rem;
+    }
+    .now-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1px; background: var(--linen);
+    }
+    @media (max-width: 860px) { .now-grid { grid-template-columns: 1fr; } }
+    .now-card {
+      background: var(--white); padding: 3rem 2.5rem;
+      position: relative; transition: background .35s;
+    }
+    .now-card:hover { background: var(--cream); }
+    .now-card.featured { background: var(--ink); color: var(--cream); }
+    .now-card.featured:hover { background: #23221A; }
+    .now-card-tag {
+      font-size: .62rem; letter-spacing: .2em; text-transform: uppercase;
+      color: var(--tan); margin-bottom: 1.5rem;
+    }
+    .now-card.featured .now-card-tag { color: var(--tan-light); }
+    .now-card-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem; font-weight: 400; line-height: 1.1; margin-bottom: 1rem;
+    }
+    .now-card.featured .now-card-name { color: var(--cream); }
+    .now-card-desc {
+      font-size: .88rem; line-height: 1.7; color: var(--mid); margin-bottom: 2rem;
+    }
+    .now-card.featured .now-card-desc { color: rgba(237,232,211,.65); }
+    .now-card-link {
+      font-size: .68rem; letter-spacing: .16em; text-transform: uppercase;
+      color: var(--tan); text-decoration: none;
+      border-bottom: 1px solid transparent; transition: border-color .25s;
+    }
+    .now-card.featured .now-card-link { color: var(--tan-light); }
+    .now-card-link:hover { border-color: currentColor; }
+    .now-card-badge {
+      position: absolute; top: 1.5rem; right: 1.5rem;
+      font-size: .6rem; letter-spacing: .12em; text-transform: uppercase;
+      background: var(--tan); color: white; padding: .25rem .6rem; border-radius: 1px;
+    }
+
+    /* ─── Anternet Feature ─── */
+    #anternet {
+      background: var(--ink); color: var(--cream);
+      padding: 10rem 2.5rem;
+      position: relative; overflow: hidden;
+    }
+    #network-canvas {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      pointer-events: none; z-index: 0;
+      opacity: .7;
+    }
+    .anternet-inner {
+      max-width: 900px; margin: 0 auto; position: relative; z-index: 1;
+    }
+    .anternet-tag {
+      font-size: .65rem; letter-spacing: .25em; text-transform: uppercase;
+      color: var(--tan-light); margin-bottom: 2rem;
+      opacity: 0; transform: translateY(10px);
+      transition: opacity .8s, transform .8s;
+    }
+    .anternet-tag.visible { opacity: 1; transform: translateY(0); }
+    .anternet-headline {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.8rem, 7vw, 6rem);
+      font-weight: 300; line-height: 1.05;
+      color: var(--cream); margin-bottom: 2.5rem;
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 1s .15s, transform 1s .15s;
+    }
+    .anternet-headline.visible { opacity: 1; transform: translateY(0); }
+    .anternet-headline em { color: var(--tan-light); font-style: italic; }
+    .scramble-text { display: inline; }
+    .anternet-body {
+      font-size: 1.05rem; line-height: 1.85;
+      color: rgba(237,232,211,.6); max-width: 580px; margin-bottom: 3.5rem;
+      opacity: 0; transition: opacity .8s .3s;
+    }
+    .anternet-body.visible { opacity: 1; }
+    .anternet-link {
+      display: inline-flex; align-items: center; gap: .75rem;
+      font-size: .75rem; letter-spacing: .2em; text-transform: uppercase;
+      color: var(--tan-light); text-decoration: none;
+      border: 1px solid rgba(176,138,92,.35);
+      padding: 1rem 2rem; transition: all .3s;
+    }
+    .anternet-link:hover { background: rgba(176,138,92,.1); border-color: var(--tan-light); }
+    .anternet-link svg { transition: transform .3s; }
+    .anternet-link:hover svg { transform: translateX(4px); }
+    .anternet-stats {
+      display: flex; gap: 4rem; margin-top: 5rem;
+      padding-top: 3rem; border-top: 1px solid rgba(255,255,255,.07);
+    }
+    @media (max-width: 600px) { .anternet-stats { flex-wrap: wrap; gap: 2rem; } }
+    .astat-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 3rem; font-weight: 300; color: var(--cream); line-height: 1;
+    }
+    .astat-label {
+      font-size: .68rem; letter-spacing: .14em; text-transform: uppercase;
+      color: rgba(237,232,211,.4); margin-top: .4rem;
+    }
+
+    /* ─── Projects Horizontal Scroll ─── */
+    #projects-wrapper {
+      position: relative;
+      height: 600vh;
+    }
+    .projects-sticky {
+      position: sticky; top: 0;
+      height: 100vh; overflow: hidden;
+    }
+    .projects-track {
+      display: flex; width: 500vw; height: 100%;
+      will-change: transform;
+    }
+    .project-panel {
+      width: 100vw; height: 100%;
+      flex-shrink: 0;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: flex-start;
+      padding: 6rem 8vw;
+      position: relative; overflow: hidden;
+    }
+    .project-panel::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, transparent 60%, rgba(0,0,0,.04));
+      pointer-events: none;
+    }
+    .pp-dark  { background: var(--ink); color: var(--cream); }
+    .pp-warm  { background: var(--warm); color: var(--ink); }
+    .pp-cream { background: var(--cream); color: var(--ink); }
+    .pp-tan   { background: #C4A882; color: var(--ink); }
+    .pp-linen { background: var(--linen); color: var(--ink); }
+
+    .project-panel-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(8rem, 20vw, 18rem);
+      font-weight: 300; line-height: 1;
+      opacity: .06; position: absolute;
+      right: 5vw; bottom: -2rem;
+      pointer-events: none;
+      letter-spacing: -.04em;
+    }
+    .pp-dark .project-panel-num { color: var(--cream); }
+
+    .project-panel-tag {
+      font-size: .65rem; letter-spacing: .25em; text-transform: uppercase;
+      color: var(--tan); margin-bottom: 1.5rem;
+    }
+    .pp-dark .project-panel-tag { color: var(--tan-light); }
+
+    .project-panel-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3.5rem, 9vw, 8rem);
+      font-weight: 300; line-height: .95;
+      letter-spacing: -.02em; margin-bottom: 2rem;
+      max-width: 14ch;
+    }
+    .project-panel-desc {
+      font-size: 1.05rem; line-height: 1.75;
+      opacity: .65; max-width: 42ch; margin-bottom: 3rem;
+    }
+    .project-panel-link {
+      font-size: .72rem; letter-spacing: .2em; text-transform: uppercase;
+      text-decoration: none; padding: .85rem 2rem;
+      border: 1px solid currentColor; opacity: .7;
+      transition: opacity .25s, background .25s;
+      color: inherit;
+    }
+    .project-panel-link:hover { opacity: 1; background: rgba(176,138,92,.12); }
+    .pp-dark .project-panel-link { border-color: rgba(237,232,211,.3); }
+    .pp-dark .project-panel-link:hover { background: rgba(237,232,211,.06); }
+
+    .projects-progress {
+      position: absolute; bottom: 2.5rem; left: 50%;
+      transform: translateX(-50%);
+      display: flex; gap: .5rem; z-index: 10;
+    }
+    .progress-dot {
+      width: 4px; height: 4px; border-radius: 50%;
+      background: var(--tan-light); opacity: .3;
+      transition: opacity .3s, transform .3s;
+    }
+    .progress-dot.active { opacity: 1; transform: scale(1.4); }
+
+    /* ─── Work ─── */
+    #work { background: var(--cream); }
+    .work-list { margin-top: 3.5rem; border-top: 1px solid var(--linen); }
+    .work-item {
+      display: grid; grid-template-columns: 2fr 3fr auto;
+      align-items: center; gap: 2rem;
+      padding: 2rem 0; border-bottom: 1px solid var(--linen);
+      text-decoration: none; color: inherit; transition: padding-left .3s;
+    }
+    @media (max-width: 700px) { .work-item { grid-template-columns: 1fr; gap: .75rem; } }
+    .work-item:hover { padding-left: .75rem; }
+    .work-item:hover .work-name { color: var(--tan); }
+    .work-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem; font-weight: 400; transition: color .25s;
+    }
+    .work-desc { font-size: .9rem; line-height: 1.6; color: var(--mid); }
+    .work-arrow {
+      font-size: .8rem; color: var(--tan);
+      opacity: 0; transform: translateX(-6px);
       transition: opacity .25s, transform .25s;
     }
-    .counter-wrap:hover .counter-tooltip {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
+    .work-item:hover .work-arrow { opacity: 1; transform: translateX(0); }
+
+    /* ─── Numbers ─── */
+    #numbers { background: var(--warm); padding: 6rem 2.5rem; }
+    .numbers-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 4rem;
+    }
+    @media (max-width: 700px) { .numbers-grid { grid-template-columns: 1fr 1fr; gap: 2.5rem; } }
+    .num-val {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3rem, 6vw, 5rem);
+      font-weight: 300; line-height: 1; color: var(--ink);
+    }
+    .num-label {
+      font-size: .72rem; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--mid); margin-top: .5rem;
     }
 
-    /* Section divider */
-    .divider {
-      width: 60px;
-      height: 1px;
-      background: var(--tan-light);
-      margin: 2.5rem 0;
-      opacity: 0;
+    /* ─── Music Visualizer ─── */
+    #music-section {
+      background: var(--ink); padding: 7rem 2.5rem;
+      text-align: center;
+    }
+    .music-label {
+      font-size: .65rem; letter-spacing: .25em; text-transform: uppercase;
+      color: rgba(176,138,92,.6); margin-bottom: 3rem;
+    }
+    .music-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 300; color: var(--cream);
+      margin-bottom: 3.5rem;
+    }
+    #music-canvas {
+      display: block; max-width: 900px; margin: 0 auto;
+      cursor: crosshair;
+    }
+    .music-sub {
+      font-size: .88rem; color: rgba(237,232,211,.4);
+      margin-top: 2rem; letter-spacing: .05em;
     }
 
-    /* Stagger helper */
-    .stagger > * { opacity: 0; }
+    /* ─── Contact ─── */
+    #contact {
+      background: var(--ink); color: var(--cream);
+      padding: 10rem 2.5rem; text-align: center;
+    }
+    .contact-headline {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3rem, 8vw, 7rem);
+      font-weight: 300; line-height: 1;
+      margin-bottom: 1.5rem; color: var(--cream);
+    }
+    .contact-sub {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem; font-style: italic;
+      color: rgba(237,232,211,.5); margin-bottom: 3.5rem;
+    }
+    .contact-row { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; }
+    .contact-btn {
+      font-size: .7rem; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--cream); text-decoration: none;
+      border: 1px solid rgba(237,232,211,.2);
+      padding: .9rem 2rem; transition: all .3s;
+      display: inline-block;
+    }
+    .contact-btn:hover { background: rgba(237,232,211,.07); border-color: rgba(237,232,211,.4); }
+    .contact-btn.primary { background: var(--tan); border-color: var(--tan); color: white; }
+    .contact-btn.primary:hover { background: var(--tan-light); border-color: var(--tan-light); }
+
+    /* ─── Footer ─── */
+    footer {
+      padding: 2rem 2.5rem; background: var(--ink);
+      border-top: 1px solid rgba(255,255,255,.06);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .footer-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem; color: rgba(237,232,211,.35);
+    }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a {
+      font-size: .65rem; letter-spacing: .15em; text-transform: uppercase;
+      color: rgba(237,232,211,.25); text-decoration: none; transition: color .25s;
+    }
+    .footer-links a:hover { color: rgba(237,232,211,.6); }
+    .footer-note { font-size: .68rem; color: rgba(237,232,211,.2); }
+
+    /* ─── Reveal ─── */
+    .reveal {
+      opacity: 0; transform: translateY(18px);
+      transition: opacity .8s ease, transform .8s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: .1s; }
+    .reveal-delay-2 { transition-delay: .2s; }
+    .reveal-delay-3 { transition-delay: .3s; }
+    .reveal-delay-4 { transition-delay: .4s; }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+      nav .nav-links { display: none; }
+      section { padding: 5rem 1.5rem; }
+      #hero { padding: 0 1.5rem 4rem; }
+    }
   </style>
 </head>
 <body>
 
-<!-- Cursors -->
 <div id="cursor"></div>
 <div id="cursor-ring"></div>
 
-<!-- ════════════════════════════════════════
-     HERO
-════════════════════════════════════════ -->
+<!-- ─── NAV ─── -->
+<nav>
+  <a href="/" class="nav-logo magnetic">JC</a>
+  <ul class="nav-links">
+    <li><a href="#now" class="magnetic">Now</a></li>
+    <li><a href="#anternet" class="magnetic">The Anternet</a></li>
+    <li><a href="#work" class="magnetic">Work</a></li>
+    <li><a href="/lab" class="magnetic">Lab</a></li>
+    <li><a href="/signal" class="magnetic">Signal</a></li>
+    <li><a href="/now" class="magnetic">Journal</a></li>
+    <li><a href="/anternet" class="magnetic">Anternet ↗</a></li>
+    <li><a href="#contact" class="magnetic">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- ─── HERO ─── -->
 <section id="hero">
-  <div class="hero-ring"></div>
-  <div class="hero-ring"></div>
-  <div class="hero-ring"></div>
-  <div class="hero-ring"></div>
-
-  <!-- floating dots injected by JS -->
-
-  <p class="hero-eyebrow">Builder · Founder · Human Being</p>
-
-  <h1 class="hero-name" id="hero-name">
-    <!-- Letters injected by JS -->
-  </h1>
-
-  <p class="hero-tagline">
-    <em id="morph-word">Musician</em> · founder · operator
-  </p>
-
-  <div class="hero-scroll-hint">
+  <div class="hero-bg-text" aria-hidden="true">JC</div>
+  <p class="hero-eyebrow" id="hero-eyebrow">Builder · Agent Infrastructure · Music</p>
+  <h1 class="hero-name" id="hero-name">Jason<br>Cerf</h1>
+  <p class="hero-descriptor" id="hero-descriptor">Building things that run without him.</p>
+  <div class="hero-scroll">
     <span>Scroll</span>
-    <div class="scroll-line"></div>
+    <div class="hero-scroll-line"></div>
   </div>
 </section>
 
-<!-- ════════════════════════════════════════
-     TICKER
-════════════════════════════════════════ -->
-<div class="ticker-wrap">
-  <div class="ticker-track" id="ticker">
-    <!-- injected by JS -->
-  </div>
+<!-- ─── GLOBE ─── -->
+<div id="globe-section">
+  <canvas id="globe-canvas"></canvas>
+  <span class="globe-label">Somewhere in the world</span>
+  <span class="globe-coord">37.78° N · 122.47° W</span>
 </div>
 
-<!-- ════════════════════════════════════════
-     ABOUT
-════════════════════════════════════════ -->
-<section id="about">
-  <div class="section-inner">
-    <p class="section-label">About</p>
-    <h2 class="section-heading">Builds things.<br>Fixes things.<br>Records things.</h2>
-    <div class="drawn-line"></div>
-    <div class="about-grid">
-      <div class="about-text">
-        <p><strong>Jason Cerf</strong> builds AI agents that do real work for real people. His current focus is <strong>Agentify</strong> — a platform that gives individuals and businesses a dedicated AI agent via SMS, handling customer service, scheduling, outreach, and operations around the clock.</p>
-        <p>He also runs <strong>Driftwood Digital</strong>, helping businesses deploy AI systems that actually change how their operations run — not demos, but working tools. His background spans music, technology, and the trades: he owns a catalog of 200,000+ recordings and has built businesses from the ground up across several industries.</p>
-        <p>On weekends — and occasionally on weekdays when the deadline is loose — he goes rock climbing. Gravity remains undefeated but the scoreline is contested.</p>
+<!-- ─── NOW ─── -->
+<section id="now">
+  <div class="inner">
+    <p class="section-tag reveal">Currently</p>
+    <h2 class="section-title reveal reveal-delay-1">What I'm building.</h2>
+    <div class="divider reveal reveal-delay-2"></div>
+    <p class="now-intro reveal reveal-delay-2">
+      Three active bets. All running in parallel. Each solves a different layer of the same problem: how do you build systems that work without you in the room?
+    </p>
+    <div class="now-grid">
+      <div class="now-card featured reveal">
+        <span class="now-card-badge">New</span>
+        <p class="now-card-tag">Internet Infrastructure</p>
+        <h3 class="now-card-name">The Anternet</h3>
+        <p class="now-card-desc">The internet wasn't built for AI agents. The Anternet is. A new protocol layer — identity, communication, and commerce for autonomous agents.</p>
+        <a href="https://anternet.ai" target="_blank" class="now-card-link magnetic">anternet.ai →</a>
       </div>
-      <div class="about-stats">
-        <div class="stat-item">
-          <div class="stat-number">
-            <div class="counter-wrap">
-              <span id="rec-counter">0</span>k+
-              <div class="counter-tooltip">...give or take a few thousand</div>
-            </div>
-          </div>
-          <div class="stat-label">Recordings owned</div>
-          <div class="stat-note">That's not a typo.</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number">3</div>
-          <div class="stat-label">Active companies</div>
-          <div class="stat-note">One for each hat he owns.</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number">∞</div>
-          <div class="stat-label">Things on the list</div>
-          <div class="stat-note">The list does not shrink.</div>
-        </div>
+      <div class="now-card reveal reveal-delay-1">
+        <p class="now-card-tag">AI Agents</p>
+        <h3 class="now-card-name">Agentify</h3>
+        <p class="now-card-desc">A platform that deploys dedicated AI agents for individuals and businesses. They handle the ops. You handle what matters.</p>
+        <a href="https://agentify.live" target="_blank" class="now-card-link magnetic">agentify.live →</a>
+      </div>
+      <div class="now-card reveal reveal-delay-2">
+        <p class="now-card-tag">Web &amp; AI Agency</p>
+        <h3 class="now-card-name">Driftwood<br>Digital</h3>
+        <p class="now-card-desc">AI-powered builds for small businesses. Real sites, real automation, actually shipped. Not demos.</p>
+        <a href="https://driftwooddigital.io" target="_blank" class="now-card-link magnetic">driftwooddigital.io →</a>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ════════════════════════════════════════
-     DOMAINS
-════════════════════════════════════════ -->
-<section id="domains">
-  <div class="section-inner">
-    <p class="section-label">What I Do</p>
-    <h2 class="section-heading">Four domains,<br>one person.</h2>
-  </div>
-
-  <div class="section-inner" style="max-width:1100px; padding: 0 2rem;">
-    <div class="domains-grid">
-
-      <!-- Music -->
-      <div class="domain-card">
-        <div class="domain-number">01</div>
-        <span class="domain-icon">♩</span>
-        <h3 class="domain-title">Music</h3>
-        <p class="domain-desc">Founder of SubmitMusic.io. 200,000+ recordings and counting. Music as infrastructure, not just art.</p>
-        <a class="domain-link" href="https://submitmusic.io" target="_blank" rel="noopener">submitmusic.io ↗</a>
-        <div class="domain-aside">200k+ recordings and yes, he's heard them all*<br><small style="font-size:.7rem">*he has not</small></div>
-      </div>
-
-      <!-- Trades -->
-      <div class="domain-card">
-        <div class="domain-number">02</div>
-        <span class="domain-icon">🔧</span>
-        <h3 class="domain-title">The Trades</h3>
-        <p class="domain-desc">Driftwood Digital — handyman, contracting, property work. Real walls, real timelines, real results.</p>
-        <a class="domain-link" href="mailto:jason@submitmusic.io">Get in touch ↗</a>
-        <div class="domain-aside">Also fixes things that weren't technically broken</div>
-      </div>
-
-      <!-- Tech / AI -->
-      <div class="domain-card">
-        <div class="domain-number">03</div>
-        <span class="domain-icon">⬡</span>
-        <h3 class="domain-title">Technology</h3>
-        <p class="domain-desc">Founder of Agentify — building AI agents that actually work, do actual things, and don't hallucinate your invoice.</p>
-        <a class="domain-link" href="mailto:jason@submitmusic.io">Talk shop ↗</a>
-        <div class="domain-aside">The robots work. Mostly.</div>
-      </div>
-
-      <!-- Climbing -->
-      <div class="domain-card">
-        <div class="domain-number">04</div>
-        <span class="domain-icon">△</span>
-        <h3 class="domain-title">Rock Climbing</h3>
-        <p class="domain-desc">The one pursuit where the problem is always the wall and never the screen. Mostly trad, occasionally unplanned descents.</p>
-        <a class="domain-link" href="mailto:jason@submitmusic.io">Say hi ↗</a>
-        <div class="domain-aside">Gravity: 1 · Jason: ongoing dispute</div>
-      </div>
-
+<!-- ─── THE ANTERNET FEATURE ─── -->
+<section id="anternet">
+  <canvas id="network-canvas"></canvas>
+  <div class="anternet-inner">
+    <p class="anternet-tag">The Anternet / anternet.ai</p>
+    <h2 class="anternet-headline" id="anternet-headline">
+      <span class="scramble-text" id="scramble-line1">The web was built for humans.</span><br>
+      <em><span class="scramble-text" id="scramble-line2">What runs between the agents?</span></em>
+    </h2>
+    <p class="anternet-body">
+      AI agents need to communicate, transact, and coordinate — but the existing internet wasn't designed for them. The Anternet is a new infrastructure layer: identity systems, communication protocols, and an economy built specifically for autonomous agents. 85+ platform concepts. 1,000+ agents registered. Built from scratch.
+    </p>
+    <a href="https://anternet.ai" target="_blank" class="anternet-link magnetic">
+      Explore the Anternet
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+    <div class="anternet-stats">
+      <div><div class="astat-num">85+</div><div class="astat-label">Platform concepts</div></div>
+      <div><div class="astat-num">1k+</div><div class="astat-label">Agents registered</div></div>
+      <div><div class="astat-num">0→1</div><div class="astat-label">Built from scratch</div></div>
     </div>
   </div>
 </section>
 
-<!-- ════════════════════════════════════════
-     WORK TAPE
-════════════════════════════════════════ -->
-<div id="tape">
-  <div class="tape-inner" id="tape-inner">
-    <!-- injected by JS -->
+<!-- ─── PROJECTS HORIZONTAL SCROLL ─── -->
+<div id="projects-wrapper">
+  <div class="projects-sticky">
+    <div class="projects-track" id="projects-track">
+
+      <div class="project-panel pp-dark">
+        <div class="project-panel-num">01</div>
+        <p class="project-panel-tag">Internet Infrastructure</p>
+        <h3 class="project-panel-name">The Anternet</h3>
+        <p class="project-panel-desc">The web was built for humans. The Anternet is built for agents. Identity. Communication. Commerce.</p>
+        <a href="https://anternet.ai" target="_blank" class="project-panel-link magnetic">anternet.ai</a>
+      </div>
+
+      <div class="project-panel pp-warm">
+        <div class="project-panel-num">02</div>
+        <p class="project-panel-tag">AI Platform</p>
+        <h3 class="project-panel-name">Agentify</h3>
+        <p class="project-panel-desc">Dedicated AI agents for individuals and businesses. They run the ops. You run the vision.</p>
+        <a href="https://agentify.live" target="_blank" class="project-panel-link magnetic">agentify.live</a>
+      </div>
+
+      <div class="project-panel pp-cream">
+        <div class="project-panel-num">03</div>
+        <p class="project-panel-tag">Web &amp; AI Agency</p>
+        <h3 class="project-panel-name">Driftwood Digital</h3>
+        <p class="project-panel-desc">AI-first web development for small businesses. Real builds. Actually shipped.</p>
+        <a href="https://driftwooddigital.io" target="_blank" class="project-panel-link magnetic">driftwooddigital.io</a>
+      </div>
+
+      <div class="project-panel pp-tan">
+        <div class="project-panel-num">04</div>
+        <p class="project-panel-tag">Music Platform</p>
+        <h3 class="project-panel-name">SubmitMusic</h3>
+        <p class="project-panel-desc">200,000+ recordings. Distribution and licensing. Built in 2019, still running strong.</p>
+        <a href="https://submitmusic.io" target="_blank" class="project-panel-link magnetic">submitmusic.io</a>
+      </div>
+
+      <div class="project-panel pp-linen">
+        <div class="project-panel-num">05</div>
+        <p class="project-panel-tag">Real Estate</p>
+        <h3 class="project-panel-name">The Dome</h3>
+        <p class="project-panel-desc">A geodesic dome on 10 acres in Texas hill country. Airbnb coming soon. Off-grid, on purpose.</p>
+        <a href="#" class="project-panel-link magnetic">Coming Soon</a>
+      </div>
+
+    </div>
+
+    <div class="projects-progress" id="projects-progress">
+      <div class="progress-dot active"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+    </div>
   </div>
 </div>
 
-<!-- ════════════════════════════════════════
-     CONTACT
-════════════════════════════════════════ -->
+<!-- ─── WORK ─── -->
+<section id="work">
+  <div class="inner">
+    <p class="section-tag reveal">Also</p>
+    <h2 class="section-title reveal reveal-delay-1">Everything else.</h2>
+    <div class="divider reveal reveal-delay-2"></div>
+    <div class="work-list">
+      <a href="https://submitmusic.io" target="_blank" class="work-item reveal">
+        <div class="work-name">SubmitMusic.io</div>
+        <div class="work-desc">Music distribution and licensing. 200,000+ recordings. Built in 2019, still running.</div>
+        <div class="work-arrow">→</div>
+      </a>
+      <a href="#" class="work-item reveal reveal-delay-1">
+        <div class="work-name">Driftwood Solutions</div>
+        <div class="work-desc">Handyman and contracting. Real walls. Fair prices.</div>
+        <div class="work-arrow">→</div>
+      </a>
+      <div class="work-item reveal reveal-delay-2" style="cursor:default">
+        <div class="work-name">The Dome</div>
+        <div class="work-desc">A geodesic dome on 10 acres. Airbnb coming soon.</div>
+        <div class="work-arrow" style="opacity:0"></div>
+      </div>
+      <div class="work-item reveal reveal-delay-3" style="cursor:default">
+        <div class="work-name">Rock Climbing</div>
+        <div class="work-desc">Mostly trad. No screen. No ops. Just the wall.</div>
+        <div class="work-arrow" style="opacity:0"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── NUMBERS ─── -->
+<section id="numbers">
+  <div class="inner">
+    <div class="numbers-grid">
+      <div class="num-item reveal">
+        <div class="num-val">200k+</div>
+        <div class="num-label">Recordings owned</div>
+      </div>
+      <div class="num-item reveal reveal-delay-1">
+        <div class="num-val">85+</div>
+        <div class="num-label">Agent concepts shipped</div>
+      </div>
+      <div class="num-item reveal reveal-delay-2">
+        <div class="num-val">3</div>
+        <div class="num-label">Active companies</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── MUSIC ARCHIVE VISUALIZER ─── -->
+<section id="music-section">
+  <p class="music-label reveal">Archive</p>
+  <h2 class="music-title reveal reveal-delay-1">200,000 recordings.</h2>
+  <canvas id="music-canvas" width="900" height="480"></canvas>
+  <p class="music-sub reveal reveal-delay-2">200,000+ recordings. Still growing.</p>
+</section>
+
+<!-- ─── CONTACT ─── -->
 <section id="contact">
-  <div class="section-inner">
-    <p class="section-label">Contact</p>
-    <h2 class="section-heading">Let's talk.</h2>
-    <div class="drawn-line" style="margin: 1.5rem auto; width:60px;"></div>
-    <p class="contact-sub">Building something interesting? Want to debate AI or share a climbing beta?</p>
-    <div class="contact-links">
-      <a class="contact-link" href="mailto:jason@submitmusic.io">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        Email
-      </a>
-      <a class="contact-link" href="https://www.linkedin.com/in/jason-cerf-45144154/" target="_blank" rel="noopener">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
-        LinkedIn
-      </a>
-      <a class="contact-link" href="https://submitmusic.io" target="_blank" rel="noopener">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-        SubmitMusic.io
-      </a>
-    </div>
+  <p class="contact-headline reveal">Let's talk.</p>
+  <p class="contact-sub reveal reveal-delay-1">Work together, or just say hello.</p>
+  <div class="contact-row reveal reveal-delay-2">
+    <a href="mailto:jason@agentify.live" class="contact-btn primary magnetic">Email Jason</a>
+    <a href="https://linkedin.com/in/jason-cerf-45144154" target="_blank" class="contact-btn magnetic">LinkedIn</a>
+    <a href="https://anternet.ai" target="_blank" class="contact-btn magnetic">The Anternet</a>
+    <a href="/now" class="contact-btn magnetic">Now</a>
   </div>
 </section>
 
-<!-- ════════════════════════════════════════
-     FOOTER
-════════════════════════════════════════ -->
+<!-- ─── FOOTER ─── -->
 <footer>
-  <div class="footer-logo">Jason Cerf</div>
-  <p class="footer-note">
-    <a href="https://submitmusic.io">submitmusic.io</a>
-  </p>
+  <span class="footer-name">Jason Cerf</span>
+  <div class="footer-links">
+    <a href="/now">Now</a>
+    <a href="/lab">Lab</a>
+    <a href="/signal">Signal</a>
+    <a href="/anternet">Anternet</a>
+    <a href="https://anternet.ai" target="_blank">anternet.ai</a>
+  </div>
+  <span class="footer-note">2026</span>
 </footer>
 
-<!-- ════════════════════════════════════════
-     SCRIPTS
-════════════════════════════════════════ -->
 <script>
-gsap.registerPlugin(ScrollTrigger);
+// ─────────────────────────────────────────────────────────────
+// LENIS SMOOTH SCROLL
+// ─────────────────────────────────────────────────────────────
+const lenis = new Lenis({ lerp: 0.1, duration: 1.4 });
 
-/* ── Cursor ── */
-const cursor = document.getElementById('cursor');
+lenis.on('scroll', ({ scroll }) => {
+  // Horizontal Projects Scroll
+  const wrapper = document.getElementById('projects-wrapper');
+  if (wrapper) {
+    const top = wrapper.offsetTop;
+    const height = wrapper.offsetHeight;
+    const vh = window.innerHeight;
+    const scrollRange = height - vh;
+    const p = Math.max(0, Math.min(1, (scroll - top) / scrollRange));
+    const track = document.getElementById('projects-track');
+    if (track) {
+      track.style.transform = `translateX(${-p * 4 * window.innerWidth}px)`;
+      // Update progress dots
+      const panelIndex = Math.round(p * 4);
+      document.querySelectorAll('.progress-dot').forEach((dot, i) => {
+        dot.classList.toggle('active', i === panelIndex);
+      });
+    }
+  }
+});
+
+// ─────────────────────────────────────────────────────────────
+// CURSOR
+// ─────────────────────────────────────────────────────────────
+const cur = document.getElementById('cursor');
 const ring = document.getElementById('cursor-ring');
-let mx = window.innerWidth/2, my = window.innerHeight/2;
+let mx = window.innerWidth / 2, my = window.innerHeight / 2;
 let rx = mx, ry = my;
 
-document.addEventListener('mousemove', e => {
-  mx = e.clientX; my = e.clientY;
-  gsap.to(cursor, { x: mx, y: my, duration: 0, overwrite: true });
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+document.querySelectorAll('a, button, .now-card, .work-item').forEach(el => {
+  el.addEventListener('mouseenter', () => document.body.classList.add('cursor-expand'));
+  el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-expand'));
 });
 
-function updateRing() {
+// ─────────────────────────────────────────────────────────────
+// MAGNETIC BUTTONS
+// ─────────────────────────────────────────────────────────────
+const magnetRadius = 80;
+const magnetStrength = 0.4;
+const magnetics = document.querySelectorAll('.magnetic');
+
+function updateMagnetics() {
+  magnetics.forEach(el => {
+    const rect = el.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = mx - cx;
+    const dy = my - cy;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist < magnetRadius) {
+      const pull = (1 - dist / magnetRadius) * magnetStrength;
+      el.style.transform = `translate(${dx * pull}px, ${dy * pull}px)`;
+    } else {
+      el.style.transform = 'translate(0,0)';
+    }
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// THREE.JS GLOBE
+// ─────────────────────────────────────────────────────────────
+let globeScene, globeCamera, globeRenderer, globeSphere, globeGroup;
+let globeHovered = false;
+let globeRotSpeed = 0.0008;
+
+(function initGlobe() {
+  const section = document.getElementById('globe-section');
+  const canvas = document.getElementById('globe-canvas');
+  const W = section.clientWidth;
+  const H = section.clientHeight;
+
+  globeScene = new THREE.Scene();
+  globeCamera = new THREE.PerspectiveCamera(42, W / H, 0.1, 1000);
+  globeCamera.position.z = 2.8;
+
+  globeRenderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  globeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  globeRenderer.setSize(W, H);
+  globeRenderer.setClearColor(0x18170F, 1);
+
+  globeGroup = new THREE.Group();
+  globeScene.add(globeGroup);
+
+  const RADIUS = 1;
+
+  // Base sphere
+  const sphereGeo = new THREE.SphereGeometry(RADIUS, 64, 64);
+  const sphereMat = new THREE.MeshPhongMaterial({
+    color: 0x1e1d14,
+    emissive: 0x0a0905,
+    specular: 0x222010,
+    shininess: 8,
+    transparent: true,
+    opacity: 0.95,
+  });
+  const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+  globeGroup.add(sphere);
+
+  // Atmospheric glow (bigger sphere with rim shader)
+  const atmVert = `
+    varying vec3 vNormal;
+    void main() {
+      vNormal = normalize(normalMatrix * normal);
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `;
+  const atmFrag = `
+    varying vec3 vNormal;
+    void main() {
+      float i = pow(0.55 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 3.5);
+      gl_FragColor = vec4(0.69, 0.54, 0.36, 1.0) * i * 1.8;
+    }
+  `;
+  const atmMat = new THREE.ShaderMaterial({
+    vertexShader: atmVert, fragmentShader: atmFrag,
+    blending: THREE.AdditiveBlending,
+    side: THREE.FrontSide, transparent: true, depthWrite: false,
+  });
+  const atmGeo = new THREE.SphereGeometry(RADIUS * 1.15, 32, 32);
+  globeGroup.add(new THREE.Mesh(atmGeo, atmMat));
+
+  // Outer glow ring
+  const outerAtmFrag = `
+    varying vec3 vNormal;
+    void main() {
+      float i = pow(max(0.0, dot(vNormal, vec3(0.0, 0.0, 1.0)) - 0.1), 2.5);
+      i = 1.0 - i;
+      i = pow(i, 3.0) * 0.5;
+      gl_FragColor = vec4(0.69, 0.54, 0.36, i * 0.6);
+    }
+  `;
+  const outerAtmMat = new THREE.ShaderMaterial({
+    vertexShader: atmVert, fragmentShader: outerAtmFrag,
+    blending: THREE.AdditiveBlending,
+    side: THREE.BackSide, transparent: true, depthWrite: false,
+  });
+  globeGroup.add(new THREE.Mesh(new THREE.SphereGeometry(RADIUS * 1.25, 32, 32), outerAtmMat));
+
+  // Graticule lines
+  function latlngToVec3(lat, lng, r) {
+    const phi = (90 - lat) * Math.PI / 180;
+    const theta = (lng + 180) * Math.PI / 180;
+    return new THREE.Vector3(
+      -r * Math.sin(phi) * Math.cos(theta),
+      r * Math.cos(phi),
+      r * Math.sin(phi) * Math.sin(theta)
+    );
+  }
+
+  const gratMat = new THREE.LineBasicMaterial({
+    color: 0xb08a5c, transparent: true, opacity: 0.12
+  });
+
+  // Lat lines every 30 deg
+  for (let lat = -60; lat <= 60; lat += 30) {
+    const pts = [];
+    for (let lng = -180; lng <= 180; lng += 3) pts.push(latlngToVec3(lat, lng, RADIUS + 0.001));
+    globeGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), gratMat));
+  }
+  // Lng lines every 30 deg
+  for (let lng = -180; lng < 180; lng += 30) {
+    const pts = [];
+    for (let lat = -90; lat <= 90; lat += 3) pts.push(latlngToVec3(lat, lng, RADIUS + 0.001));
+    globeGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), gratMat));
+  }
+
+  // Country borders from topojson
+  fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+    .then(r => r.json())
+    .then(world => {
+      const countries = topojson.feature(world, world.objects.countries);
+      const borderMat = new THREE.LineBasicMaterial({
+        color: 0xcdb08a, transparent: true, opacity: 0.22
+      });
+      const processRing = (ring) => {
+        const pts = [];
+        ring.forEach(([lng, lat]) => pts.push(latlngToVec3(lat, lng, RADIUS + 0.002)));
+        return pts;
+      };
+      countries.features.forEach(feature => {
+        const geo = feature.geometry;
+        if (!geo) return;
+        const rings = [];
+        if (geo.type === 'Polygon') geo.coordinates.forEach(r => rings.push(processRing(r)));
+        else if (geo.type === 'MultiPolygon') geo.coordinates.forEach(p => p.forEach(r => rings.push(processRing(r))));
+        rings.forEach(pts => {
+          if (pts.length < 2) return;
+          globeGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), borderMat));
+        });
+      });
+    }).catch(() => {}); // graceful fallback if CDN fails
+
+  // SF Location dot
+  const sfPos = latlngToVec3(37.78, -122.47, RADIUS + 0.003);
+
+  // Pulse rings
+  const pulseGroup = new THREE.Group();
+  globeGroup.add(pulseGroup);
+  pulseGroup.position.copy(sfPos);
+  pulseGroup.lookAt(new THREE.Vector3(0, 0, 0));
+
+  for (let i = 0; i < 3; i++) {
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(0.012, 0.018, 32),
+      new THREE.MeshBasicMaterial({
+        color: 0xb08a5c, transparent: true, opacity: 0.7, side: THREE.DoubleSide
+      })
+    );
+    ring.userData.delay = i * 0.7;
+    pulseGroup.add(ring);
+  }
+
+  // Solid dot
+  const dot = new THREE.Mesh(
+    new THREE.CircleGeometry(0.006, 16),
+    new THREE.MeshBasicMaterial({ color: 0xd4a574, side: THREE.DoubleSide })
+  );
+  pulseGroup.add(dot);
+
+  // Light
+  globeScene.add(new THREE.AmbientLight(0xffffff, 0.3));
+  const dirLight = new THREE.DirectionalLight(0xfff8e7, 1.2);
+  dirLight.position.set(5, 3, 5);
+  globeScene.add(dirLight);
+
+  // Initial tilt
+  globeGroup.rotation.x = 0.25;
+
+  // Hover
+  section.addEventListener('mouseenter', () => globeHovered = true);
+  section.addEventListener('mouseleave', () => globeHovered = false);
+
+  // Resize
+  window.addEventListener('resize', () => {
+    const W2 = section.clientWidth;
+    const H2 = section.clientHeight;
+    globeCamera.aspect = W2 / H2;
+    globeCamera.updateProjectionMatrix();
+    globeRenderer.setSize(W2, H2);
+  });
+
+  window._pulseGroup = pulseGroup;
+})();
+
+// ─────────────────────────────────────────────────────────────
+// THREE.JS AGENT NETWORK (Anternet section)
+// ─────────────────────────────────────────────────────────────
+let netScene, netCamera, netRenderer;
+let netParticles = [], netPositions = [], netVelocities = [];
+let netMouse = { x: 0, y: 0 };
+const PARTICLE_COUNT = 120;
+const CONNECTION_DIST = 0.38;
+
+(function initNetwork() {
+  const section = document.getElementById('anternet');
+  const canvas = document.getElementById('network-canvas');
+  const W = section.clientWidth;
+  const H = section.clientHeight;
+
+  netScene = new THREE.Scene();
+  netCamera = new THREE.PerspectiveCamera(60, W / H, 0.1, 100);
+  netCamera.position.z = 3;
+
+  netRenderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  netRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  netRenderer.setSize(W, H);
+  netRenderer.setClearColor(0x000000, 0);
+
+  // Particles
+  const particleGeo = new THREE.BufferGeometry();
+  const positions = new Float32Array(PARTICLE_COUNT * 3);
+  const colors = new Float32Array(PARTICLE_COUNT * 3);
+
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    const x = (Math.random() - 0.5) * 6;
+    const y = (Math.random() - 0.5) * 4;
+    const z = (Math.random() - 0.5) * 2;
+    positions[i * 3] = x;
+    positions[i * 3 + 1] = y;
+    positions[i * 3 + 2] = z;
+
+    netPositions.push({ x, y, z });
+    netVelocities.push({
+      x: (Math.random() - 0.5) * 0.003,
+      y: (Math.random() - 0.5) * 0.003,
+      z: (Math.random() - 0.5) * 0.002,
+    });
+
+    // Tan colors with slight variation
+    colors[i * 3]     = 0.69 + Math.random() * 0.15;
+    colors[i * 3 + 1] = 0.54 + Math.random() * 0.1;
+    colors[i * 3 + 2] = 0.36 + Math.random() * 0.1;
+  }
+
+  particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  particleGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+  const particleMat = new THREE.PointsMaterial({
+    size: 0.028,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.85,
+    sizeAttenuation: true,
+  });
+
+  netParticles = new THREE.Points(particleGeo, particleMat);
+  netScene.add(netParticles);
+
+  // Lines geometry (will be updated each frame)
+  const maxLines = PARTICLE_COUNT * PARTICLE_COUNT;
+  const linePositions = new Float32Array(maxLines * 6);
+  const lineColors = new Float32Array(maxLines * 6);
+  const lineGeo = new THREE.BufferGeometry();
+  lineGeo.setAttribute('position', new THREE.BufferAttribute(linePositions, 3).setUsage(THREE.DynamicDrawUsage));
+  lineGeo.setAttribute('color', new THREE.BufferAttribute(lineColors, 3).setUsage(THREE.DynamicDrawUsage));
+
+  const lineMat = new THREE.LineSegments(lineGeo, new THREE.LineBasicMaterial({
+    vertexColors: true, transparent: true, opacity: 0.4,
+  }));
+  netScene.add(lineMat);
+
+  window._netLineGeo = lineGeo;
+  window._netLineObj = lineMat;
+
+  // Mouse parallax
+  const antSection = document.getElementById('anternet');
+  antSection.addEventListener('mousemove', e => {
+    const rect = antSection.getBoundingClientRect();
+    netMouse.x = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+    netMouse.y = -((e.clientY - rect.top) / rect.height - 0.5) * 2;
+  });
+
+  // Resize
+  window.addEventListener('resize', () => {
+    const W2 = section.clientWidth;
+    const H2 = section.clientHeight;
+    netCamera.aspect = W2 / H2;
+    netCamera.updateProjectionMatrix();
+    netRenderer.setSize(W2, H2);
+  });
+})();
+
+function updateNetworkLines() {
+  const pos = netParticles.geometry.attributes.position;
+  const linePosAttr = window._netLineGeo.attributes.position;
+  const lineColAttr = window._netLineGeo.attributes.color;
+  const lp = linePosAttr.array;
+  const lc = lineColAttr.array;
+  let lineIdx = 0;
+
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    for (let j = i + 1; j < PARTICLE_COUNT; j++) {
+      const dx = pos.array[i*3] - pos.array[j*3];
+      const dy = pos.array[i*3+1] - pos.array[j*3+1];
+      const dz = pos.array[i*3+2] - pos.array[j*3+2];
+      const d = Math.sqrt(dx*dx + dy*dy + dz*dz);
+
+      if (d < CONNECTION_DIST) {
+        const fade = 1 - d / CONNECTION_DIST;
+        const base = lineIdx * 6;
+
+        lp[base]   = pos.array[i*3];     lp[base+1] = pos.array[i*3+1]; lp[base+2] = pos.array[i*3+2];
+        lp[base+3] = pos.array[j*3];     lp[base+4] = pos.array[j*3+1]; lp[base+5] = pos.array[j*3+2];
+
+        const col = fade * 0.55;
+        lc[base]   = 0.69 * col; lc[base+1] = 0.54 * col; lc[base+2] = 0.36 * col;
+        lc[base+3] = 0.69 * col; lc[base+4] = 0.54 * col; lc[base+5] = 0.36 * col;
+
+        lineIdx++;
+      }
+    }
+  }
+
+  window._netLineGeo.setDrawRange(0, lineIdx * 2);
+  linePosAttr.needsUpdate = true;
+  lineColAttr.needsUpdate = true;
+}
+
+// ─────────────────────────────────────────────────────────────
+// MUSIC VISUALIZER
+// ─────────────────────────────────────────────────────────────
+(function initMusicViz() {
+  const canvas = document.getElementById('music-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  const cols = 78, rows = 22;
+  const dotSize = 2.5;
+  const xPad = (W - cols * (W / cols)) / 2;
+  const xStep = W / cols;
+  const yStep = H / rows;
+
+  const dots = [];
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      dots.push({
+        x: col * xStep + xStep / 2 + (Math.random() - 0.5) * 4,
+        y: row * yStep + yStep / 2 + (Math.random() - 0.5) * 4,
+        baseAlpha: 0.25 + Math.random() * 0.2,
+        alpha: 0.25 + Math.random() * 0.2,
+        r: dotSize,
+        baseR: dotSize,
+        pulse: Math.random() * Math.PI * 2,
+        pulseSpeed: 0.01 + Math.random() * 0.015,
+      });
+    }
+  }
+
+  let mouseX = -999, mouseY = -999;
+  canvas.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = W / rect.width;
+    const scaleY = H / rect.height;
+    mouseX = (e.clientX - rect.left) * scaleX;
+    mouseY = (e.clientY - rect.top) * scaleY;
+  });
+  canvas.addEventListener('mouseleave', () => { mouseX = -999; mouseY = -999; });
+
+  function drawMusicViz(t) {
+    ctx.clearRect(0, 0, W, H);
+
+    dots.forEach(dot => {
+      dot.pulse += dot.pulseSpeed;
+      const naturalPulse = Math.sin(dot.pulse) * 0.06;
+      const dx = mouseX - dot.x;
+      const dy = mouseY - dot.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const proximity = Math.max(0, 1 - dist / 100);
+
+      dot.alpha = dot.baseAlpha + naturalPulse + proximity * 0.55;
+      dot.r = dot.baseR + proximity * 2.5;
+
+      ctx.beginPath();
+      ctx.arc(dot.x, dot.y, dot.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(176, 138, 92, ${dot.alpha})`;
+      ctx.fill();
+    });
+  }
+
+  window._drawMusicViz = drawMusicViz;
+})();
+
+// ─────────────────────────────────────────────────────────────
+// TEXT SCRAMBLE
+// ─────────────────────────────────────────────────────────────
+const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%';
+let scrambleDone = false;
+
+function scrambleText(el, originalText, onComplete) {
+  const len = originalText.length;
+  let frame = 0;
+  const totalFrames = len * 4 + 20;
+  const settled = new Array(len).fill(false);
+
+  const tick = () => {
+    let result = '';
+    for (let i = 0; i < len; i++) {
+      if (originalText[i] === ' ') { result += ' '; continue; }
+      if (settled[i]) {
+        result += originalText[i];
+      } else if (frame > i * 3.5) {
+        settled[i] = true;
+        result += originalText[i];
+      } else {
+        result += SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+      }
+    }
+    el.textContent = result;
+
+    if (frame < totalFrames) {
+      frame++;
+      requestAnimationFrame(tick);
+    } else {
+      el.textContent = originalText;
+      if (onComplete) onComplete();
+    }
+  };
+  requestAnimationFrame(tick);
+}
+
+// ─────────────────────────────────────────────────────────────
+// INTERSECTION OBSERVERS
+// ─────────────────────────────────────────────────────────────
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      revealObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal, .anternet-tag, .anternet-headline, .anternet-body').forEach(el => {
+  revealObserver.observe(el);
+});
+
+// Scramble trigger on anternet headline
+const scrambleObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting && !scrambleDone) {
+      scrambleDone = true;
+      const line1 = document.getElementById('scramble-line1');
+      const line2 = document.getElementById('scramble-line2');
+      const text1 = line1.textContent;
+      const text2 = line2.textContent;
+      setTimeout(() => scrambleText(line1, text1, () => {
+        setTimeout(() => scrambleText(line2, text2), 200);
+      }), 400);
+      scrambleObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.3 });
+
+const anternetHeadline = document.getElementById('anternet-headline');
+if (anternetHeadline) scrambleObserver.observe(anternetHeadline);
+
+// ─────────────────────────────────────────────────────────────
+// HERO ENTRANCE
+// ─────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  setTimeout(() => document.getElementById('hero-eyebrow').classList.add('visible'), 200);
+  setTimeout(() => document.getElementById('hero-name').classList.add('visible'), 400);
+  setTimeout(() => document.getElementById('hero-descriptor').classList.add('visible'), 700);
+});
+
+// ─────────────────────────────────────────────────────────────
+// MAIN ANIMATION LOOP
+// ─────────────────────────────────────────────────────────────
+let lastTime = 0;
+
+function tick(time) {
+  lenis.raf(time);
+
+  const dt = time - lastTime;
+  lastTime = time;
+
+  // Cursor tracking (lagged ring)
   rx += (mx - rx) * 0.12;
   ry += (my - ry) * 0.12;
-  ring.style.left = rx + 'px';
-  ring.style.top = ry + 'px';
-  requestAnimationFrame(updateRing);
-}
-updateRing();
+  cur.style.left = mx + 'px'; cur.style.top = my + 'px';
+  ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
 
-/* ── Inject hero name letters ── */
-const name = "Jason Cerf";
-const heroName = document.getElementById('hero-name');
-name.split('').forEach(ch => {
-  const s = document.createElement('span');
-  if (ch === ' ') {
-    s.className = 'space';
-  } else {
-    s.className = 'letter';
-    s.textContent = ch;
+  // Magnetic buttons
+  updateMagnetics();
+
+  // Globe
+  if (globeGroup && globeRenderer) {
+    if (!globeHovered) {
+      globeGroup.rotation.y += globeRotSpeed;
+    }
+
+    // Pulse rings animation
+    const pulseGroup = window._pulseGroup;
+    if (pulseGroup) {
+      pulseGroup.children.forEach((child, i) => {
+        if (child.userData.delay !== undefined) {
+          const phase = ((time * 0.001 + child.userData.delay) % 2) / 2;
+          child.scale.setScalar(1 + phase * 2);
+          child.material.opacity = (1 - phase) * 0.7;
+        }
+      });
+    }
+
+    globeRenderer.render(globeScene, globeCamera);
   }
-  heroName.appendChild(s);
-});
 
-/* ── Inject floating dots ── */
-const hero = document.getElementById('hero');
-for (let i = 0; i < 18; i++) {
-  const d = document.createElement('div');
-  d.className = 'dot';
-  d.style.left = Math.random() * 100 + '%';
-  d.style.bottom = (Math.random() * 30) + '%';
-  d.style.animationDuration = (6 + Math.random() * 10) + 's';
-  d.style.animationDelay = (Math.random() * 8) + 's';
-  hero.appendChild(d);
-}
+  // Agent Network
+  if (netRenderer && netParticles) {
+    const pos = netParticles.geometry.attributes.position;
+    // Move particles
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      netPositions[i].x += netVelocities[i].x;
+      netPositions[i].y += netVelocities[i].y;
+      netPositions[i].z += netVelocities[i].z;
 
-/* ── Hero entrance animation ── */
-const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-tl.to('.hero-eyebrow', { opacity: 1, y: 0, duration: 1, delay: .3 })
-  .to('.hero-name .letter', {
-    opacity: 1, y: 0, rotate: 0,
-    duration: .9,
-    stagger: .06,
-    ease: 'back.out(1.4)'
-  }, '-=.5')
-  .to('.hero-tagline', { opacity: 1, y: 0, duration: .8 }, '-=.3')
-  .to('.hero-scroll-hint', { opacity: 1, duration: .6 }, '-=.2');
+      // Bounce walls
+      if (Math.abs(netPositions[i].x) > 3.2) netVelocities[i].x *= -1;
+      if (Math.abs(netPositions[i].y) > 2.2) netVelocities[i].y *= -1;
+      if (Math.abs(netPositions[i].z) > 1.2) netVelocities[i].z *= -1;
 
-/* ── Morphing word ── */
-const words = ['Musician', 'Builder', 'Founder', 'Operator', 'Climber'];
-let wi = 0;
-const morphEl = document.getElementById('morph-word');
-
-function morphWord() {
-  wi = (wi + 1) % words.length;
-  gsap.to(morphEl, {
-    opacity: 0, y: -12, duration: .35,
-    onComplete: () => {
-      morphEl.textContent = words[wi];
-      gsap.to(morphEl, { opacity: 1, y: 0, duration: .4 });
+      pos.array[i*3]   = netPositions[i].x;
+      pos.array[i*3+1] = netPositions[i].y;
+      pos.array[i*3+2] = netPositions[i].z;
     }
-  });
-}
-setInterval(morphWord, 2400);
+    pos.needsUpdate = true;
+    updateNetworkLines();
 
-/* ── Ticker ── */
-const tickerItems = [
-  { text: 'Music', sep: true },
-  { text: 'SubmitMusic.io', sep: true },
-  { text: '200k+ Recordings', sep: true },
-  { text: 'Driftwood Digital', sep: true },
-  { text: 'Handyman & Contracting', sep: true },
-  { text: 'AI Agents', sep: true },
-  { text: 'Agentify', sep: true },
-  { text: 'Rock Climbing', sep: true },
-  { text: 'Founder', sep: false },
-];
+    // Mouse parallax
+    netCamera.position.x += (netMouse.x * 0.3 - netCamera.position.x) * 0.05;
+    netCamera.position.y += (netMouse.y * 0.2 - netCamera.position.y) * 0.05;
+    netCamera.lookAt(netScene.position);
 
-function buildTicker() {
-  const track = document.getElementById('ticker');
-  const doubled = [...tickerItems, ...tickerItems];
-  doubled.forEach((item, i) => {
-    const span = document.createElement('span');
-    span.textContent = item.text;
-    if (i % 2 === 0) span.style.fontStyle = 'normal';
-    track.appendChild(span);
-    if (item.sep) {
-      const dot = document.createElement('span');
-      dot.className = 'sep';
-      dot.textContent = '·';
-      track.appendChild(dot);
-    }
-  });
-}
-buildTicker();
-
-/* ── Tape ── */
-const tapeItems = [
-  'SubmitMusic.io', '200,000+ recordings', 'Driftwood Digital', 'handyman & contracting',
-  'Agentify', 'AI agents that work', 'rock climbing', 'founder', 'builder',
-  'operator', 'musician', 'SubmitMusic.io', '200,000+ recordings', 'Driftwood Digital',
-  'handyman & contracting', 'Agentify', 'AI agents', 'rock climbing',
-];
-function buildTape() {
-  const inner = document.getElementById('tape-inner');
-  const doubled = [...tapeItems, ...tapeItems];
-  doubled.forEach((item, i) => {
-    const span = document.createElement('span');
-    span.textContent = item;
-    if (['SubmitMusic.io', 'Agentify', 'Driftwood Digital'].includes(item)) {
-      span.className = 'highlight';
-    }
-    inner.appendChild(span);
-  });
-}
-buildTape();
-
-/* ── Section scroll animations ── */
-// Section labels + headings
-document.querySelectorAll('.section-label').forEach(el => {
-  gsap.to(el, {
-    opacity: 1,
-    scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' },
-    duration: .7, delay: .1
-  });
-});
-
-document.querySelectorAll('.section-heading').forEach(el => {
-  gsap.fromTo(el,
-    { opacity: 0, y: 30 },
-    {
-      opacity: 1, y: 0, duration: 1, ease: 'power3.out',
-      scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' },
-    }
-  );
-});
-
-// Drawn lines
-document.querySelectorAll('.drawn-line').forEach(el => {
-  gsap.to(el, {
-    scaleX: 1,
-    duration: 1.2,
-    ease: 'power3.inOut',
-    scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' }
-  });
-});
-
-// Dividers
-document.querySelectorAll('.divider').forEach(el => {
-  gsap.to(el, {
-    opacity: 1, scaleX: 1,
-    duration: .8,
-    scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none none' }
-  });
-});
-
-// About text paragraphs
-document.querySelectorAll('.about-text p').forEach((el, i) => {
-  gsap.to(el, {
-    opacity: 1, y: 0,
-    duration: .8,
-    delay: i * .15,
-    ease: 'power2.out',
-    scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none none' }
-  });
-  gsap.fromTo(el, { y: 20 }, { y: 0,
-    duration: .8, delay: i*.15, ease:'power2.out',
-    scrollTrigger: { trigger: el, start: 'top 88%' }
-  });
-});
-
-// Stat items
-document.querySelectorAll('.stat-item').forEach((el, i) => {
-  gsap.to(el, {
-    opacity: 1,
-    duration: .7,
-    delay: i * .2,
-    scrollTrigger: { trigger: '.about-stats', start: 'top 80%', toggleActions: 'play none none none' }
-  });
-});
-
-// Counter animation for recordings
-let counterDone = false;
-ScrollTrigger.create({
-  trigger: '#rec-counter',
-  start: 'top 80%',
-  onEnter: () => {
-    if (counterDone) return;
-    counterDone = true;
-    const el = document.getElementById('rec-counter');
-    let val = 0;
-    const target = 200;
-    const step = target / 60;
-    const timer = setInterval(() => {
-      val = Math.min(val + step, target);
-      el.textContent = Math.floor(val);
-      if (val >= target) clearInterval(timer);
-    }, 16);
+    netRenderer.render(netScene, netCamera);
   }
-});
 
-// Domain cards stagger
-document.querySelectorAll('.domain-card').forEach((el, i) => {
-  gsap.fromTo(el,
-    { opacity: 0, y: 40 },
-    {
-      opacity: 1, y: 0,
-      duration: .8,
-      delay: i * .12,
-      ease: 'power2.out',
-      scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' }
-    }
-  );
-});
+  // Music visualizer
+  if (window._drawMusicViz) window._drawMusicViz(time);
 
-// Contact
-gsap.to('.contact-sub', {
-  opacity: 1,
-  duration: .8,
-  scrollTrigger: { trigger: '.contact-sub', start: 'top 85%', toggleActions: 'play none none none' }
-});
-gsap.to('.contact-links', {
-  opacity: 1,
-  duration: .8, delay: .2,
-  scrollTrigger: { trigger: '.contact-links', start: 'top 85%', toggleActions: 'play none none none' }
-});
+  requestAnimationFrame(tick);
+}
 
-/* ── Parallax on rings ── */
-document.querySelectorAll('.hero-ring').forEach((el, i) => {
-  gsap.to(el, {
-    y: (i + 1) * -30,
-    ease: 'none',
-    scrollTrigger: {
-      trigger: '#hero',
-      start: 'top top',
-      end: 'bottom top',
-      scrub: 1.5
-    }
-  });
-});
+requestAnimationFrame(tick);
 
-/* ── Subtle parallax on hero name ── */
-gsap.to('#hero-name', {
-  y: 60,
-  ease: 'none',
-  scrollTrigger: {
-    trigger: '#hero',
-    start: 'top top',
-    end: 'bottom top',
-    scrub: 1
-  }
-});
-
-/* ── Smooth scroll to sections from nav (future use) ── */
+// ─────────────────────────────────────────────────────────────
+// SMOOTH ANCHOR SCROLLING
+// ─────────────────────────────────────────────────────────────
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', e => {
-    e.preventDefault();
     const target = document.querySelector(a.getAttribute('href'));
-    if (target) target.scrollIntoView({ behavior: 'smooth' });
+    if (target) {
+      e.preventDefault();
+      lenis.scrollTo(target, { offset: 0, duration: 1.8 });
+    }
   });
 });
 </script>

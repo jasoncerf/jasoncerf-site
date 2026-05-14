@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/now", "destination": "/now.html" },
+    { "source": "/anternet", "destination": "/anternet.html" },
+    { "source": "/lab", "destination": "/lab.html" },
+    { "source": "/signal", "destination": "/signal.html" }
+  ]
+}
