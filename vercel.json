@@ -3,6 +3,20 @@
     { "source": "/now", "destination": "/now.html" },
     { "source": "/anternet", "destination": "/anternet.html" },
     { "source": "/lab", "destination": "/lab.html" },
-    { "source": "/signal", "destination": "/signal.html" }
+    { "source": "/signal", "destination": "/signal.html" },
+    { "source": "/projects", "destination": "/projects.html" }
+  ],
+  "headers": [
+    {
+      "source": "/sitemap.xml",
+      "headers": [{"key": "Content-Type", "value": "application/xml"}]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {"key": "X-Content-Type-Options", "value": "nosniff"},
+        {"key": "X-Frame-Options", "value": "SAMEORIGIN"}
+      ]
+    }
   ]
 }

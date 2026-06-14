@@ -4,13 +4,44 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Jason Cerf — Builder</title>
-  <meta name="description" content="Building things that run without him. Agent infrastructure. Music. The trades.">
+  <meta name="description" content="Building things that run without him. Agent infrastructure, AI agencies, music, and the trades. Founder of The Anternet, Agentify, and Driftwood Digital.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://jasoncerf.com/">
+  <meta property="og:title" content="Jason Cerf — Builder">
+  <meta property="og:description" content="Building things that run without him. Founder of The Anternet, Agentify, and Driftwood Digital.">
+  <meta property="og:image" content="https://jasoncerf.com/og-home.png">
+  <meta property="og:site_name" content="Jason Cerf">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@jasoncerf">
+  <meta name="twitter:title" content="Jason Cerf — Builder">
+  <meta name="twitter:description" content="Building things that run without him. Founder of The Anternet, Agentify, and Driftwood Digital.">
+  <meta name="twitter:image" content="https://jasoncerf.com/og-home.png">
+  <link rel="canonical" href="https://jasoncerf.com/">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Jason Cerf",
+    "url": "https://jasoncerf.com",
+    "description": "Builder and entrepreneur. Founder of The Anternet, Agentify, Driftwood Digital, and SubmitMusic.io.",
+    "sameAs": [
+      "https://linkedin.com/in/jason-cerf-45144154",
+      "https://anternet.ai",
+      "https://agentify.live"
+    ],
+    "jobTitle": "Founder",
+    "worksFor": [
+      {"@type": "Organization", "name": "The Anternet", "url": "https://anternet.ai"},
+      {"@type": "Organization", "name": "Agentify", "url": "https://agentify.live"},
+      {"@type": "Organization", "name": "Driftwood Digital", "url": "https://driftwooddigital.io"}
+    ]
+  }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" as="style" onload="this.rel='stylesheet'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"></noscript>
   <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
-  <script src="https://unpkg.com/three@0.162.0/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -442,6 +473,59 @@
       margin-top: 2rem; letter-spacing: .05em;
     }
 
+    /* ─── Theme Switcher ─── */
+    #theme-indicator {
+      position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      background: rgba(24,23,15,.92); color: var(--tan-light);
+      font-size: .68rem; letter-spacing: .18em; text-transform: uppercase;
+      padding: .6rem 1.4rem; border: 1px solid rgba(176,138,92,.3);
+      z-index: 99999; pointer-events: none; opacity: 0;
+      transition: opacity .25s ease;
+    }
+    #theme-indicator.show { opacity: 1; }
+
+    .theme-hint {
+      position: fixed; bottom: 3.8rem; left: 50%; transform: translateX(-50%);
+      font-size: .55rem; letter-spacing: .22em; text-transform: uppercase;
+      color: rgba(176,138,92,.4); z-index: 99998; pointer-events: none;
+      opacity: 0; transition: opacity .4s;
+    }
+    .theme-hint.show { opacity: 1; }
+
+    /* Dark theme text overrides for inverted sections */
+    body.theme-dark .contact-headline,
+    body.theme-dark .contact-sub,
+    body.theme-dark .footer-name,
+    body.theme-dark .footer-links a,
+    body.theme-dark .footer-note,
+    body.theme-dark .music-label,
+    body.theme-dark .music-title,
+    body.theme-dark .music-sub,
+    body.theme-dark .anternet-tag,
+    body.theme-dark .anternet-headline,
+    body.theme-dark .anternet-body,
+    body.theme-dark .anternet-link,
+    body.theme-dark .astat-num,
+    body.theme-dark .astat-label,
+    body.theme-dark .now-card.featured .now-card-name,
+    body.theme-dark .now-card.featured .now-card-desc,
+    body.theme-dark .now-card.featured .now-card-link { color: var(--cream); }
+
+    body.theme-mono .contact-headline,
+    body.theme-mono .contact-sub,
+    body.theme-mono .footer-name,
+    body.theme-mono .footer-links a,
+    body.theme-mono .footer-note,
+    body.theme-mono .music-label,
+    body.theme-mono .music-title,
+    body.theme-mono .music-sub,
+    body.theme-mono .anternet-tag,
+    body.theme-mono .anternet-headline,
+    body.theme-mono .anternet-body,
+    body.theme-mono .anternet-link,
+    body.theme-mono .astat-num,
+    body.theme-mono .astat-label { color: #ddd; }
+
     /* ─── Contact ─── */
     #contact {
       background: var(--ink); color: var(--cream);
@@ -505,10 +589,72 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
+    /* ─── Hero Canvas ─── */
+    #hero-canvas {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      pointer-events: none; z-index: 0;
+    }
+    .hero-eyebrow, .hero-name, .hero-descriptor, .hero-scroll {
+      position: relative; z-index: 1;
+    }
+    .hero-bg-text { z-index: 0; }
+
+    /* ─── Floating shape layers ─── */
+    .geo-shape {
+      position: absolute; pointer-events: none;
+      border: 1px solid rgba(176,138,92,.13);
+      border-radius: 0;
+      animation: geoFloat linear infinite;
+    }
+    @keyframes geoFloat {
+      0%   { transform: rotate(0deg) translate(0, 0); }
+      25%  { transform: rotate(3deg) translate(6px, -8px); }
+      50%  { transform: rotate(-2deg) translate(-4px, 12px); }
+      75%  { transform: rotate(4deg) translate(8px, 4px); }
+      100% { transform: rotate(0deg) translate(0, 0); }
+    }
+
+    /* ─── Mobile: hide cursor, restore natural scrolling ─── */
+    @media (hover: none), (pointer: coarse) {
+      body { cursor: auto !important; }
+      #cursor, #cursor-ring { display: none !important; }
+    }
+
+    /* ─── Mobile: projects section goes vertical ─── */
+    @media (max-width: 860px) {
+      #projects-wrapper {
+        height: auto !important;
+      }
+      .projects-sticky {
+        position: static !important;
+        height: auto !important;
+        overflow: visible !important;
+      }
+      .projects-track {
+        display: block !important;
+        width: 100% !important;
+        transform: none !important;
+      }
+      .project-panel {
+        width: 100% !important;
+        height: auto !important;
+        min-height: 70vmax;
+        padding: 4rem 2rem 5rem;
+      }
+      .project-panel-name {
+        font-size: clamp(2.8rem, 10vw, 5rem);
+      }
+      .projects-progress { display: none; }
+    }
+
     @media (max-width: 600px) {
       nav .nav-links { display: none; }
       section { padding: 5rem 1.5rem; }
       #hero { padding: 0 1.5rem 4rem; }
+      .anternet-stats { gap: 2rem; }
+      #music-canvas { width: 100%; height: auto; }
+      .now-card { padding: 2rem 1.5rem; }
     }
   </style>
 </head>
@@ -534,6 +680,7 @@
 
 <!-- ─── HERO ─── -->
 <section id="hero">
+  <canvas id="hero-canvas" aria-hidden="true"></canvas>
   <div class="hero-bg-text" aria-hidden="true">JC</div>
   <p class="hero-eyebrow" id="hero-eyebrow">Builder · Agent Infrastructure · Music</p>
   <h1 class="hero-name" id="hero-name">Jason<br>Cerf</h1>
@@ -751,55 +898,169 @@
   <span class="footer-note">2026</span>
 </footer>
 
-<script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.148.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+  <script>
 // ─────────────────────────────────────────────────────────────
-// LENIS SMOOTH SCROLL
+// THEME SYSTEM (Tab to cycle)
 // ─────────────────────────────────────────────────────────────
-const lenis = new Lenis({ lerp: 0.1, duration: 1.4 });
+let currentThemeIndex = 0;
+let themeTimeout = null;
 
-lenis.on('scroll', ({ scroll }) => {
-  // Horizontal Projects Scroll
-  const wrapper = document.getElementById('projects-wrapper');
-  if (wrapper) {
-    const top = wrapper.offsetTop;
-    const height = wrapper.offsetHeight;
-    const vh = window.innerHeight;
-    const scrollRange = height - vh;
-    const p = Math.max(0, Math.min(1, (scroll - top) / scrollRange));
-    const track = document.getElementById('projects-track');
-    if (track) {
-      track.style.transform = `translateX(${-p * 4 * window.innerWidth}px)`;
-      // Update progress dots
-      const panelIndex = Math.round(p * 4);
-      document.querySelectorAll('.progress-dot').forEach((dot, i) => {
-        dot.classList.toggle('active', i === panelIndex);
-      });
-    }
+const themes = [
+  { name: "Editorial", vars: { cream: "#F7F5F0", warm: "#EDEAD3", tan: "#B08A5C", tanLight: "#CDB08A", ink: "#18170F", mid: "#6B6659", linen: "#E3DDD2", white: "#FDFCFA" }, accent: "#B08A5C", dark: false },
+  { name: "Midnight", vars: { cream: "#0F172A", warm: "#1E2937", tan: "#64748B", tanLight: "#94A3B8", ink: "#020617", mid: "#475569", linen: "#334155", white: "#1E2937" }, accent: "#64748B", dark: true },
+  { name: "Terminal", vars: { cream: "#0D1117", warm: "#161B22", tan: "#39FF14", tanLight: "#7CFF7C", ink: "#010409", mid: "#484F58", linen: "#21262D", white: "#161B22" }, accent: "#39FF14", dark: true, mono: true },
+  { name: "Brutalist", vars: { cream: "#FAFAFA", warm: "#E5E5E5", tan: "#000000", tanLight: "#333333", ink: "#000000", mid: "#666666", linen: "#CCCCCC", white: "#FFFFFF" }, accent: "#000000", dark: false },
+  { name: "Vaporwave", vars: { cream: "#FF71CE", warm: "#01CDFE", tan: "#05FFA1", tanLight: "#B967FF", ink: "#120458", mid: "#FF71CE", linen: "#01CDFE", white: "#FF71CE" }, accent: "#05FFA1", dark: true },
+  { name: "Desert", vars: { cream: "#F4EDE4", warm: "#E8D9C2", tan: "#C17F59", tanLight: "#D4A373", ink: "#3D2B1F", mid: "#8B7355", linen: "#D4C5B5", white: "#FAF6F1" }, accent: "#C17F59", dark: false },
+  { name: "Arctic", vars: { cream: "#F0F4F8", warm: "#E2E8F0", tan: "#4A90A4", tanLight: "#7FB3D5", ink: "#1A202C", mid: "#718096", linen: "#CBD5E0", white: "#FFFFFF" }, accent: "#4A90A4", dark: false },
+  { name: "Parchment", vars: { cream: "#F5F0E1", warm: "#EDE4D3", tan: "#8B6914", tanLight: "#A67C00", ink: "#3C2F2F", mid: "#6B5B4F", linen: "#D4C9B8", white: "#FAF7F0" }, accent: "#8B6914", dark: false },
+  { name: "Graphite", vars: { cream: "#1F252E", warm: "#2A313A", tan: "#7F8C8D", tanLight: "#95A5A6", ink: "#0D1117", mid: "#5D6D7E", linen: "#34495E", white: "#2C3E50" }, accent: "#7F8C8D", dark: true },
+  { name: "Forest", vars: { cream: "#F1F5F0", warm: "#E4EDE5", tan: "#2D5A27", tanLight: "#4A7C59", ink: "#0F1C0F", mid: "#4A5D4A", linen: "#C8D5C8", white: "#F8FBF8" }, accent: "#2D5A27", dark: false },
+  { name: "Blood Moon", vars: { cream: "#2C1810", warm: "#3D2418", tan: "#C41E3A", tanLight: "#E63946", ink: "#0D0604", mid: "#6B4423", linen: "#4A2C1F", white: "#3D2418" }, accent: "#C41E3A", dark: true },
+  { name: "Sunset", vars: { cream: "#FFF5E6", warm: "#FFE4C4", tan: "#FF6B35", tanLight: "#FF8C42", ink: "#2D1B0E", mid: "#8B5A2B", linen: "#FFDAB9", white: "#FFF8F0" }, accent: "#FF6B35", dark: false },
+  { name: "Blueprint", vars: { cream: "#0A1628", warm: "#132238", tan: "#4A90D9", tanLight: "#6BA3E0", ink: "#050D1A", mid: "#3A6B99", linen: "#1E3A5F", white: "#132238" }, accent: "#4A90D9", dark: true },
+  { name: "Sepia", vars: { cream: "#F5EDE0", warm: "#EDE0CC", tan: "#704214", tanLight: "#8B5A2B", ink: "#2C2115", mid: "#66513A", linen: "#D4C4A8", white: "#FAF5ED" }, accent: "#704214", dark: false },
+  { name: "Neon Tokyo", vars: { cream: "#0D0221", warm: "#190033", tan: "#FF00FF", tanLight: "#00FFFF", ink: "#000000", mid: "#9933FF", linen: "#330066", white: "#190033" }, accent: "#FF00FF", dark: true },
+  { name: "Coffee", vars: { cream: "#F5F0E9", warm: "#EDE4D7", tan: "#6F4E37", tanLight: "#8B7355", ink: "#2C2118", mid: "#5C4636", linen: "#D4C9B8", white: "#FAF7F2" }, accent: "#6F4E37", dark: false },
+  { name: "Ice", vars: { cream: "#E8F4F8", warm: "#D4E8F0", tan: "#5DADE2", tanLight: "#85C1E9", ink: "#1B2631", mid: "#5D6D7E", linen: "#AED6F1", white: "#F4F6F7" }, accent: "#5DADE2", dark: false },
+  { name: "Matrix", vars: { cream: "#001100", warm: "#002200", tan: "#00FF41", tanLight: "#39FF14", ink: "#000000", mid: "#006600", linen: "#003300", white: "#002200" }, accent: "#00FF41", dark: true, mono: true },
+  { name: "Lavender", vars: { cream: "#F5F0FA", warm: "#EDE4F0", tan: "#7D3C98", tanLight: "#9B59B6", ink: "#2C1B3D", mid: "#6C3483", linen: "#D7BDE2", white: "#FAF5FC" }, accent: "#7D3C98", dark: false },
+  { name: "Rust", vars: { cream: "#F8F4F0", warm: "#F0E6DC", tan: "#B7410E", tanLight: "#CD5C5C", ink: "#2C1810", mid: "#8B4513", linen: "#E8D4C4", white: "#FAF8F5" }, accent: "#B7410E", dark: false },
+  { name: "Cyberpunk", vars: { cream: "#0A0A0F", warm: "#14141F", tan: "#FF2E97", tanLight: "#00F9FF", ink: "#000000", mid: "#7B2D8E", linen: "#1F1F2E", white: "#14141F" }, accent: "#FF2E97", dark: true },
+  { name: "Olive", vars: { cream: "#F5F5E8", warm: "#EBEBD8", tan: "#556B2F", tanLight: "#6B8E23", ink: "#1C1C14", mid: "#4A5D23", linen: "#D4D4B8", white: "#FAFAF0" }, accent: "#556B2F", dark: false },
+  { name: "Royal", vars: { cream: "#F8F4FC", warm: "#F0E8F8", tan: "#4A0E4E", tanLight: "#6B2D6B", ink: "#1A0520", mid: "#5C2D5C", linen: "#D8C8E8", white: "#FAF8FC" }, accent: "#4A0E4E", dark: false },
+  { name: "Ash", vars: { cream: "#F0F0F0", warm: "#E0E0E0", tan: "#555555", tanLight: "#777777", ink: "#111111", mid: "#666666", linen: "#CCCCCC", white: "#FAFAFA" }, accent: "#555555", dark: false },
+  { name: "Coral", vars: { cream: "#FFF5F2", warm: "#FFE8E0", tan: "#FF6B6B", tanLight: "#FF8787", ink: "#2D1B1B", mid: "#8B4545", linen: "#FFD4CC", white: "#FFF8F6" }, accent: "#FF6B6B", dark: false },
+];
+
+function applyTheme(index) {
+  const theme = themes[index];
+  const root = document.documentElement;
+  Object.entries(theme.vars).forEach(([key, val]) => {
+    const cssKey = '--' + key.replace(/([A-Z])/g, '-$1').toLowerCase();
+    root.style.setProperty(cssKey, val);
+  });
+
+  // Update body classes
+  document.body.classList.remove('theme-dark', 'theme-mono');
+  if (theme.dark) document.body.classList.add('theme-dark');
+  if (theme.mono) document.body.classList.add('theme-mono');
+
+  // Update globe clear color
+  if (window.globeRenderer) {
+    const inkColor = new THREE.Color(theme.vars.ink);
+    window.globeRenderer.setClearColor(inkColor.getHex(), 1);
+  }
+
+  // Show indicator
+  const indicator = document.getElementById('theme-indicator');
+  if (indicator) {
+    indicator.textContent = `${theme.name} (${index + 1}/${themes.length})`;
+    indicator.classList.add('show');
+    clearTimeout(themeTimeout);
+    themeTimeout = setTimeout(() => indicator.classList.remove('show'), 1400);
+  }
+}
+
+function cycleTheme(forward = true) {
+  currentThemeIndex = forward
+    ? (currentThemeIndex + 1) % themes.length
+    : (currentThemeIndex - 1 + themes.length) % themes.length;
+  applyTheme(currentThemeIndex);
+}
+
+// Keyboard: Tab cycles forward, Shift+Tab cycles backward
+document.addEventListener('keydown', e => {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    cycleTheme(!e.shiftKey);
   }
 });
 
-// ─────────────────────────────────────────────────────────────
-// CURSOR
-// ─────────────────────────────────────────────────────────────
-const cur = document.getElementById('cursor');
-const ring = document.getElementById('cursor-ring');
-let mx = window.innerWidth / 2, my = window.innerHeight / 2;
-let rx = mx, ry = my;
+// Create indicator elements
+function initThemeUI() {
+  const indicator = document.createElement('div');
+  indicator.id = 'theme-indicator';
+  document.body.appendChild(indicator);
 
-document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
-document.querySelectorAll('a, button, .now-card, .work-item').forEach(el => {
-  el.addEventListener('mouseenter', () => document.body.classList.add('cursor-expand'));
-  el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-expand'));
-});
+  const hint = document.createElement('div');
+  hint.className = 'theme-hint';
+  hint.textContent = 'Press Tab to change style';
+  document.body.appendChild(hint);
+
+  // Show hint briefly on first load
+  setTimeout(() => {
+    hint.classList.add('show');
+    setTimeout(() => hint.classList.remove('show'), 2600);
+  }, 1800);
+
+  // Click to dismiss hint
+  hint.addEventListener('click', () => hint.classList.remove('show'));
+}
 
 // ─────────────────────────────────────────────────────────────
-// MAGNETIC BUTTONS
+// DEVICE DETECTION
+// ─────────────────────────────────────────────────────────────
+const isTouchDevice = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+
+// ─────────────────────────────────────────────────────────────
+// LENIS SMOOTH SCROLL (desktop only)
+// ─────────────────────────────────────────────────────────────
+let lenis = null;
+
+if (!isTouchDevice) {
+  lenis = new Lenis({ lerp: 0.1, duration: 1.4 });
+
+  lenis.on('scroll', ({ scroll }) => {
+    // Horizontal Projects Scroll
+    const wrapper = document.getElementById('projects-wrapper');
+    if (wrapper) {
+      const top = wrapper.getBoundingClientRect().top + scroll;
+      const height = wrapper.offsetHeight;
+      const vh = window.innerHeight;
+      const scrollRange = height - vh;
+      const p = Math.max(0, Math.min(1, (scroll - top) / scrollRange));
+      const track = document.getElementById('projects-track');
+      if (track) {
+        track.style.transform = `translateX(${-p * 4 * window.innerWidth}px)`;
+        const panelIndex = Math.round(p * 4);
+        document.querySelectorAll('.progress-dot').forEach((dot, i) => {
+          dot.classList.toggle('active', i === panelIndex);
+        });
+      }
+    }
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// CURSOR (desktop only)
+// ─────────────────────────────────────────────────────────────
+let cur, ring, mx, my, rx, ry;
+
+if (!isTouchDevice) {
+  cur = document.getElementById('cursor');
+  ring = document.getElementById('cursor-ring');
+  mx = window.innerWidth / 2; my = window.innerHeight / 2;
+  rx = mx; ry = my;
+
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  document.querySelectorAll('a, button, .now-card, .work-item').forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('cursor-expand'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-expand'));
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// MAGNETIC BUTTONS (desktop only)
 // ─────────────────────────────────────────────────────────────
 const magnetRadius = 80;
 const magnetStrength = 0.4;
-const magnetics = document.querySelectorAll('.magnetic');
+const magnetics = isTouchDevice ? [] : document.querySelectorAll('.magnetic');
 
 function updateMagnetics() {
+  if (isTouchDevice) return;
   magnetics.forEach(el => {
     const rect = el.getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
@@ -820,7 +1081,7 @@ function updateMagnetics() {
 // ─────────────────────────────────────────────────────────────
 // THREE.JS GLOBE
 // ─────────────────────────────────────────────────────────────
-let globeScene, globeCamera, globeRenderer, globeSphere, globeGroup;
+let globeScene, globeCamera, globeRenderer, globeSphere, globeGroup, globeHovered = false, globeRotSpeed = 0.0008;
 let globeHovered = false;
 let globeRotSpeed = 0.0008;
 
@@ -838,6 +1099,7 @@ let globeRotSpeed = 0.0008;
   globeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   globeRenderer.setSize(W, H);
   globeRenderer.setClearColor(0x18170F, 1);
+  window.globeRenderer = globeRenderer; // expose for theme switching
 
   globeGroup = new THREE.Group();
   globeScene.add(globeGroup);
@@ -1291,16 +1553,18 @@ window.addEventListener('load', () => {
 let lastTime = 0;
 
 function tick(time) {
-  lenis.raf(time);
+  if (lenis) lenis.raf(time);
 
   const dt = time - lastTime;
   lastTime = time;
 
-  // Cursor tracking (lagged ring)
-  rx += (mx - rx) * 0.12;
-  ry += (my - ry) * 0.12;
-  cur.style.left = mx + 'px'; cur.style.top = my + 'px';
-  ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+  // Cursor tracking (desktop only)
+  if (!isTouchDevice && cur && ring) {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    cur.style.left = mx + 'px'; cur.style.top = my + 'px';
+    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+  }
 
   // Magnetic buttons
   updateMagnetics();
@@ -1358,8 +1622,150 @@ function tick(time) {
   // Music visualizer
   if (window._drawMusicViz) window._drawMusicViz(time);
 
+  // Hero canvas
+  if (window._drawHeroCanvas) window._drawHeroCanvas();
+
   requestAnimationFrame(tick);
 }
+
+// ─────────────────────────────────────────────────────────────
+// HERO GEOMETRIC CANVAS
+// ─────────────────────────────────────────────────────────────
+(function initHeroCanvas() {
+  const canvas = document.getElementById('hero-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H;
+
+  function resize() {
+    W = canvas.width = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Arcs: large partial circles
+  const arcs = [
+    { x: .15, y: .25, r: 320, startA: .2, spanA: 1.4, speed: .00022, drift: { x: .04, y: .025 } },
+    { x: .82, y: .15, r: 240, startA: 2.5, spanA: 1.1, speed: -.00018, drift: { x: -.03, y: .02 } },
+    { x: .68, y: .72, r: 380, startA: .8, spanA: .9, speed: .00015, drift: { x: .02, y: -.03 } },
+    { x: .35, y: .8,  r: 180, startA: 3.8, spanA: 1.6, speed: -.00025, drift: { x: -.05, y: .015 } },
+    { x: .9,  y: .55, r: 150, startA: 1.5, spanA: 2.0, speed: .0003,  drift: { x: .015, y: -.04 } },
+    { x: .08, y: .7,  r: 260, startA: 4.5, spanA: 1.2, speed: -.0002, drift: { x: .04, y: .03 } },
+  ];
+
+  // Thin crossing lines
+  const lines = [
+    { x1: .05, y1: .12, x2: .38, y2: .44, opacity: .07 },
+    { x1: .72, y1: .05, x2: .95, y2: .35, opacity: .06 },
+    { x1: .0,  y1: .6,  x2: .22, y2: .92, opacity: .05 },
+    { x1: .62, y1: .6,  x2: .98, y2: .8,  opacity: .06 },
+  ];
+
+  // Floating diamonds (rotated squares)
+  const diamonds = [
+    { x: .78, y: .38, size: 44, angle: Math.PI/4, speed: .00014, vx: .00012, vy: .00008 },
+    { x: .18, y: .55, size: 28, angle: Math.PI/4, speed: -.00020, vx: -.00009, vy: .00011 },
+    { x: .52, y: .15, size: 36, angle: Math.PI/4, speed: .00018, vx: .00007, vy: -.00012 },
+    { x: .88, y: .78, size: 22, angle: Math.PI/4, speed: -.00012, vx: -.00011, vy: .0001 },
+  ];
+
+  // Floating dots
+  const dots = [];
+  for (let i = 0; i < 28; i++) {
+    dots.push({
+      x: Math.random(), y: Math.random(),
+      r: .6 + Math.random() * 1.4,
+      alpha: .08 + Math.random() * .12,
+      vx: (Math.random() - .5) * .00015,
+      vy: (Math.random() - .5) * .00015,
+    });
+  }
+
+  let mouseX = 0.5, mouseY = 0.5;
+  if (!isTouchDevice) {
+    document.addEventListener('mousemove', e => {
+      mouseX = e.clientX / window.innerWidth;
+      mouseY = e.clientY / window.innerHeight;
+    });
+  }
+
+  let t = 0;
+
+  function drawHero() {
+    ctx.clearRect(0, 0, W, H);
+    t += 1;
+
+    // No parallax on touch — keep shapes centered
+    const px = isTouchDevice ? 0 : (mouseX - .5) * 28;
+    const py = isTouchDevice ? 0 : (mouseY - .5) * 18;
+
+    // Arcs
+    arcs.forEach(a => {
+      a.startA += a.speed;
+      a.x = Math.max(.05, Math.min(.95, a.x + Math.sin(t * a.drift.x) * .00015));
+      a.y = Math.max(.05, Math.min(.95, a.y + Math.cos(t * a.drift.y) * .00012));
+
+      ctx.save();
+    ctx.globalAlpha = .1;
+    ctx.strokeStyle = getThemeAccent(0.1);
+    ctx.lineWidth = .8;
+    ctx.beginPath();
+    ctx.arc(
+        a.x * W + px * .6,
+        a.y * H + py * .4,
+        a.r, a.startA, a.startA + a.spanA
+      );
+      ctx.stroke();
+      ctx.restore();
+    });
+
+    // Lines
+    lines.forEach(l => {
+      ctx.save();
+    ctx.globalAlpha = l.opacity;
+    ctx.strokeStyle = getThemeAccent(l.opacity);
+    ctx.lineWidth = .6;
+    ctx.beginPath();
+    ctx.moveTo(l.x1 * W + px * .3, l.y1 * H + py * .25);
+      ctx.lineTo(l.x2 * W + px * .3, l.y2 * H + py * .25);
+      ctx.stroke();
+      ctx.restore();
+    });
+
+    // Diamonds
+    diamonds.forEach(d => {
+      d.angle += d.speed;
+      d.x = ((d.x + d.vx * Math.sin(t * .008) + 1) % 1);
+      d.y = ((d.y + d.vy * Math.cos(t * .006) + 1) % 1);
+
+      ctx.save();
+      ctx.globalAlpha = .09;
+      ctx.strokeStyle = 'rgba(176,138,92,1)';
+      ctx.lineWidth = .7;
+      ctx.translate(d.x * W + px * .5, d.y * H + py * .35);
+      ctx.rotate(d.angle);
+      ctx.strokeRect(-d.size / 2, -d.size / 2, d.size, d.size);
+      ctx.restore();
+    });
+
+    // Dots
+    dots.forEach(d => {
+      d.x = ((d.x + d.vx + 1) % 1);
+      d.y = ((d.y + d.vy + 1) % 1);
+
+      ctx.save();
+      ctx.globalAlpha = d.alpha;
+      ctx.fillStyle = 'rgba(176,138,92,1)';
+      ctx.beginPath();
+      ctx.arc(d.x * W + px * .2, d.y * H + py * .15, d.r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    });
+  }
+
+  window._drawHeroCanvas = drawHero;
+})();
 
 requestAnimationFrame(tick);
 
@@ -1368,13 +1774,109 @@ requestAnimationFrame(tick);
 // ─────────────────────────────────────────────────────────────
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', e => {
-    const target = document.querySelector(a.getAttribute('href'));
+    const href = a.getAttribute('href');
+    if (href === '#') return;
+    const target = document.querySelector(href);
     if (target) {
       e.preventDefault();
-      lenis.scrollTo(target, { offset: 0, duration: 1.8 });
+      if (lenis) {
+        lenis.scrollTo(target, { offset: 0, duration: 1.8 });
+      } else {
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
     }
   });
 });
+</script>
+
+<!-- ─── Theme Switcher ─── -->
+<style>
+  #theme-toast {
+    position: fixed; bottom: 2rem; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: var(--cream);
+    padding: .5rem 1.4rem; border-radius: 2rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .68rem; letter-spacing: .2em; text-transform: uppercase;
+    z-index: 9999; opacity: 0;
+    transition: opacity .3s, transform .3s;
+    pointer-events: none;
+    border: 1px solid rgba(128,128,128,.2);
+  }
+  #theme-toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+  #theme-hint {
+    position: fixed; bottom: .75rem; right: 1.2rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .58rem; letter-spacing: .15em; text-transform: uppercase;
+    color: var(--mid); opacity: .4; pointer-events: none; z-index: 100;
+    transition: opacity .3s;
+  }
+  #theme-hint:hover { opacity: .8; }
+  #theme-cycle-btn {
+    display: none;
+    position: fixed; bottom: 1.5rem; right: 1.2rem;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--tan); border: none; cursor: pointer;
+    z-index: 9999; align-items: center; justify-content: center;
+    font-size: 1rem; opacity: .7; transition: opacity .2s, transform .2s;
+  }
+  #theme-cycle-btn:hover { opacity: 1; transform: scale(1.1); }
+  @media (pointer: coarse) { #theme-cycle-btn { display: flex; } #theme-hint { display: none; } }
+</style>
+<div id="theme-toast"></div>
+<div id="theme-hint">Tab → style</div>
+<button id="theme-cycle-btn" aria-label="Cycle theme">◐</button>
+<script>
+(function(){
+  var T=[
+    {n:'Warm',     v:{'--cream':'#F7F5F0','--warm':'#EDEAD3','--tan':'#B08A5C','--tan-light':'#CDB08A','--ink':'#18170F','--mid':'#6B6659','--linen':'#E3DDD2','--white':'#FDFCFA'}},
+    {n:'Noir',     v:{'--cream':'#0A0A0A','--warm':'#141414','--tan':'#CC3333','--tan-light':'#E05050','--ink':'#EFEFEF','--mid':'#999999','--linen':'#222222','--white':'#1A1A1A'}},
+    {n:'Ocean',    v:{'--cream':'#0D1B2A','--warm':'#1B2A3B','--tan':'#4ECDC4','--tan-light':'#7DDBD6','--ink':'#E8F4F8','--mid':'#8FB8C8','--linen':'#1A2E40','--white':'#162333'}},
+    {n:'Forest',   v:{'--cream':'#0F1A0F','--warm':'#1A2A1A','--tan':'#4CAF50','--tan-light':'#7BC97E','--ink':'#E8F5E9','--mid':'#81B882','--linen':'#1E301E','--white':'#141F14'}},
+    {n:'Neon',     v:{'--cream':'#030A03','--warm':'#071207','--tan':'#00FF41','--tan-light':'#39FF14','--ink':'#CCFFCC','--mid':'#00BB30','--linen':'#0A1A0A','--white':'#050E05'}},
+    {n:'Rose',     v:{'--cream':'#FDF0F0','--warm':'#F9E5E5','--tan':'#C06080','--tan-light':'#D88090','--ink':'#2A1020','--mid':'#886070','--linen':'#EDD8D8','--white':'#FEF7F7'}},
+    {n:'Slate',    v:{'--cream':'#1A1F2E','--warm':'#252B3B','--tan':'#7C9CBF','--tan-light':'#A0B8D0','--ink':'#E4E8F0','--mid':'#8090A8','--linen':'#2A3040','--white':'#202535'}},
+    {n:'Desert',   v:{'--cream':'#FAF0E6','--warm':'#F5E6D3','--tan':'#C45E3C','--tan-light':'#D87D5F','--ink':'#1A0F08','--mid':'#7A5040','--linen':'#E8D8C4','--white':'#FBF5EE'}},
+    {n:'Midnight', v:{'--cream':'#0A0D1A','--warm':'#121627','--tan':'#D4AF37','--tan-light':'#E8CB6A','--ink':'#EEF0F8','--mid':'#8890B0','--linen':'#181D30','--white':'#0E1220'}},
+    {n:'Mint',     v:{'--cream':'#F0FAF6','--warm':'#E0F4ED','--tan':'#2EB87E','--tan-light':'#5CCFA0','--ink':'#0A2018','--mid':'#407060','--linen':'#D0EDE0','--white':'#F5FBF8'}},
+    {n:'Mono',     v:{'--cream':'#FFFFFF','--warm':'#F5F5F5','--tan':'#111111','--tan-light':'#444444','--ink':'#111111','--mid':'#555555','--linen':'#E0E0E0','--white':'#FFFFFF'}},
+    {n:'Sepia',    v:{'--cream':'#F4ECD8','--warm':'#EEE0C4','--tan':'#7A5C2E','--tan-light':'#9E7D4A','--ink':'#1C1006','--mid':'#6E5A3A','--linen':'#E8D8B8','--white':'#F8F2E0'}},
+    {n:'Ember',    v:{'--cream':'#0D0905','--warm':'#1A1208','--tan':'#FF8C00','--tan-light':'#FFA830','--ink':'#FFF3E0','--mid':'#C0902A','--linen':'#1A1308','--white':'#100B06'}},
+    {n:'Lavender', v:{'--cream':'#F5F0FF','--warm':'#EDE6FF','--tan':'#8B5CF6','--tan-light':'#A78BFA','--ink':'#1A0A2E','--mid':'#6B5080','--linen':'#DDD4F5','--white':'#F9F6FF'}},
+    {n:'Dusk',     v:{'--cream':'#1A1520','--warm':'#231D2E','--tan':'#C084FC','--tan-light':'#D8A0FF','--ink':'#F0EAF8','--mid':'#8870A0','--linen':'#281E36','--white':'#1E1828'}},
+    {n:'Arctic',   v:{'--cream':'#F0F8FF','--warm':'#E6F2FB','--tan':'#0077B6','--tan-light':'#0096CC','--ink':'#001428','--mid':'#4A6A8A','--linen':'#D8EAF5','--white':'#F5FBFF'}}
+  ];
+  var cur = parseInt(localStorage.getItem('jc-theme')||'0',10);
+  if(isNaN(cur)||cur<0||cur>=T.length) cur=0;
+  function apply(i){
+    var r=document.documentElement,t=T[i];
+    for(var k in t.v) r.style.setProperty(k,t.v[k]);
+  }
+  function toast(name){
+    var el=document.getElementById('theme-toast');
+    if(!el)return;
+    el.textContent=name;
+    el.classList.add('visible');
+    clearTimeout(el._t);
+    el._t=setTimeout(function(){el.classList.remove('visible');},2000);
+  }
+  function next(){
+    cur=(cur+1)%T.length;
+    localStorage.setItem('jc-theme',cur);
+    apply(cur);
+    toast(T[cur].n);
+  }
+  apply(cur);
+  document.addEventListener('keydown',function(e){
+    if(e.key!=='Tab')return;
+    var tag=document.activeElement&&document.activeElement.tagName;
+    if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT')return;
+    e.preventDefault();
+    next();
+  });
+  var btn=document.getElementById('theme-cycle-btn');
+  if(btn) btn.addEventListener('click',next);
+})();
 </script>
 </body>
 </html>
